@@ -506,8 +506,8 @@ app.get(
       return;
     }
 
-    // Staff and manager always go to applicant portal
-    const finalPortal = (requestedPortal === "staff" || requestedPortal === "manager") ? "applicant" : requestedPortal;
+    // Staff and manager go to their respective portals
+    const finalPortal = requestedPortal;
     req.session.portal = finalPortal;
     updateUserFromProfile(req.user);
     res.redirect("/dashboard");
