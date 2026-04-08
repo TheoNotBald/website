@@ -18,10 +18,6 @@ const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const OAUTH_READY = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
-const STAFF_LOGIN_USER = process.env.STAFF_LOGIN_USER || "admin";
-const STAFF_LOGIN_PASSWORD = process.env.STAFF_LOGIN_PASSWORD || "123";
-const MANAGER_LOGIN_USER = process.env.MANAGER_LOGIN_USER || "admin";
-const MANAGER_LOGIN_PASSWORD = process.env.MANAGER_LOGIN_PASSWORD || "123";
 const MINIMUM_AGE = 13;
 const RESUBMIT_LOCK_MS = 24 * 60 * 60 * 1000;
 const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
@@ -70,43 +66,6 @@ const APPLICATION_PAGE_FIELDS = {
   4: ["scenarioPiratesCornerYou", "scenarioStrandedSailors"]
 };
 const APPLICATION_ALL_FIELDS = Object.values(APPLICATION_PAGE_FIELDS).flat();
-
-function buildDefaultStaffAccounts() {
-  const entries = [["admin", "123"], ["test", "1234"]];
-  for (let i = 2; i <= 9; i += 1) {
-    entries.push([`test${i}`, "1234"]);
-  }
-  return entries;
-}
-
-function parseCredentialMap(value, fallbackEntries) {
-  const map = new Map(fallbackEntries);
-  if (!value || !value.trim()) {
-    return map;
-  }
-
-  map.clear();
-  for (const part of value.split(",")) {
-    const [rawUser, ...rawPassParts] = part.split(":");
-    const username = (rawUser || "").trim();
-    const password = rawPassParts.join(":").trim();
-    if (!username || !password) {
-      continue;
-    }
-    map.set(username, password);
-  }
-
-  if (!map.size) {
-    return new Map(fallbackEntries);
-  }
-
-  return map;
-}
-
-const STAFF_LOGIN_ACCOUNTS = parseCredentialMap(
-  process.env.STAFF_LOGIN_ACCOUNTS,
-  buildDefaultStaffAccounts()
-);
 
 const storePath = path.join(__dirname, "data", "store.json");
 
@@ -506,33 +465,7 @@ app.get("/login/:portal", (req, res) => {
 
 app.post("/login/:portal", (req, res) => {
   const portal = req.params.portal;
-  if (!["staff", "manager"].includes(portal)) {
-    return res.status(404).send("Login page not found.");
-  }
-
-  const username = (req.body.username || "").trim();
-  const password = (req.body.password || "").trim();
-
-  if (portal === "staff") {
-    const expectedPassword = STAFF_LOGIN_ACCOUNTS.get(username);
-    if (!expectedPassword || password !== expectedPassword) {
-      return res.redirect(`/login/${portal}?error=Invalid+username+or+password.`);
-    }
-  } else {
-    if (username !== MANAGER_LOGIN_USER || password !== MANAGER_LOGIN_PASSWORD) {
-      return res.redirect(`/login/${portal}?error=Invalid+username+or+password.`);
-    }
-  }
-
-  const localProfile = createLocalProfile(portal, username);
-  return req.login(localProfile, (err) => {
-    if (err) {
-      return res.status(500).send("Failed to start session.");
-    }
-    req.session.portal = portal;
-    updateUserFromProfile(localProfile);
-    return res.redirect("/dashboard");
-  });
+  return res.status(405).send("Password login is no longer supported. Please use Discord OAuth.");
 });
 
 app.get("/auth/discord", (req, res, next) => {
