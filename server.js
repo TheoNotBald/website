@@ -22,6 +22,10 @@ const OAUTH_READY = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCOR
 // Log staff/manager IDs at startup
 console.log(`[STARTUP] STAFF_DISCORD_IDS=${process.env.STAFF_DISCORD_IDS || "(not set)"}`);
 console.log(`[STARTUP] MANAGER_DISCORD_IDS=${process.env.MANAGER_DISCORD_IDS || "(not set)"}`);
+console.log(`[STARTUP] DISCORD_CLIENT_ID set=${Boolean(DISCORD_CLIENT_ID)}`);
+console.log(`[STARTUP] DISCORD_CLIENT_SECRET set=${Boolean(DISCORD_CLIENT_SECRET)}`);
+console.log(`[STARTUP] DISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || "(not set)"}`);
+console.log(`[STARTUP] OAUTH_READY=${OAUTH_READY}`);
 const MINIMUM_AGE = 13;
 const RESUBMIT_LOCK_MS = 24 * 60 * 60 * 1000;
 const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
