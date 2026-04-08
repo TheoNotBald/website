@@ -18,8 +18,6 @@ const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const OAUTH_READY = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
-const ALLOW_DEV_LOGIN = process.env.ALLOW_DEV_LOGIN !== "false" || !OAUTH_READY;
-const ALLOW_APPLICANT_TEST_BYPASS = process.env.ALLOW_APPLICANT_TEST_BYPASS !== "false";
 const STAFF_LOGIN_USER = process.env.STAFF_LOGIN_USER || "admin";
 const STAFF_LOGIN_PASSWORD = process.env.STAFF_LOGIN_PASSWORD || "123";
 const MANAGER_LOGIN_USER = process.env.MANAGER_LOGIN_USER || "admin";
@@ -473,18 +471,12 @@ function underReviewMessage(ign) {
 app.get("/", (req, res) => {
   res.render("login", {
     user: req.user,
-    portal: req.session.portal || null,
-    oauthReady: OAUTH_READY,
-    allowDevLogin: ALLOW_DEV_LOGIN
+    portal: req.session.portal || null
   });
 });
 
 app.get("/login/applicant", (req, res) => {
-  res.render("applicant-login", {
-    oauthReady: OAUTH_READY,
-    allowDevLogin: ALLOW_DEV_LOGIN,
-    allowApplicantTestBypass: ALLOW_APPLICANT_TEST_BYPASS
-  });
+  res.render("applicant-login");
 });
 
 // Legacy path aliases kept for backward compatibility with old links.
@@ -586,61 +578,6 @@ app.get(
     res.redirect("/dashboard");
   }
 );
-
-app.get("/test-login/applicant", (req, res) => {
-  if (!ALLOW_APPLICANT_TEST_BYPASS) {
-    return res.status(403).send("Applicant test bypass is disabled.");
-  }
-
-  const fakeProfile = {
-    id: "test-applicant",
-    username: "test_applicant",
-    discriminator: "0000",
-    global_name: "Applicant Test",
-    avatar: null
-  };
-
-  req.login(fakeProfile, (err) => {
-    if (err) {
-      return res.status(500).send("Failed to create test login session.");
-    }
-    req.session.portal = "applicant";
-    updateUserFromProfile(fakeProfile);
-    return res.redirect("/dashboard");
-  });
-});
-
-if (ALLOW_DEV_LOGIN) {
-  app.get("/dev-login/:portal", (req, res) => {
-    const portal = req.params.portal;
-    if (!["applicant", "staff", "manager"].includes(portal)) {
-      return res.status(400).send("Invalid portal.");
-    }
-
-    const fakeIdMap = {
-      applicant: "dev-applicant",
-      staff: "dev-staff",
-      manager: "dev-manager"
-    };
-
-    const fakeProfile = {
-      id: fakeIdMap[portal],
-      username: `${portal}_user`,
-      discriminator: "0000",
-      global_name: portal === "manager" ? "Manager Test" : portal === "staff" ? "Staff Test" : "Applicant Test",
-      avatar: null
-    };
-
-    req.login(fakeProfile, (err) => {
-      if (err) {
-        return res.status(500).send("Failed to create dev login session.");
-      }
-      req.session.portal = portal;
-      updateUserFromProfile(fakeProfile);
-      return res.redirect("/dashboard");
-    });
-  });
-}
 
 app.get("/dashboard", ensureSignedIn, (req, res) => {
   const data = readStore();

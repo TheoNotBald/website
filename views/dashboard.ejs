@@ -198,7 +198,7 @@
           <% const managerScore35 = entry.averageScore !== null ? (entry.averageScore * 7) : null; %>
           <article class="application-card">
             <header>
-              <h3><%= portal === "manager" ? ("#" + entry.id + " - " + entry.answers.ign) : ("#" + entry.id + " - Anonymous Applicant") %></h3>
+              <h3><%= portal === "manager" ? ("#" + entry.id + " - " + entry.answers.ign) : ("#" + entry.id) %></h3>
               <div class="card-statuses">
                 <span class="status status-<%= entry.status %>"><%= entry.status %></span>
                 <% if (portal === "manager" && managerScore35 !== null) { %>

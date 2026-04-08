@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Starfall Civilisation Event Applications Website
 
 Local web app with:
@@ -8,7 +7,7 @@ Local web app with:
 - Application form with 14 required questions
 - Manager accept/deny actions
 - Automatic Discord DM on accept/deny
-- Persistent local storage (`data/store.json`) suitable for 400+ applications
+- Persistent local storage (`data/store.json`)
 
 ## 1. Install
 
@@ -20,7 +19,7 @@ npm install
 
 Copy `.env.example` to `.env` and fill in values.
 
-Required for real Discord login + DMs:
+Required for Discord login + DMs:
 
 - `DISCORD_CLIENT_ID`
 - `DISCORD_CLIENT_SECRET`
@@ -29,9 +28,7 @@ Required for real Discord login + DMs:
 - `STAFF_DISCORD_IDS`
 - `MANAGER_DISCORD_IDS`
 
-Use `ALLOW_DEV_LOGIN=true` to test all roles without Discord setup.
-
-## 3. Run on port 444
+## 3. Run
 
 ```bash
 npm start
@@ -42,18 +39,10 @@ Default bind:
 - Host: `0.0.0.0`
 - Port: `444`
 
-## 4. Public IP access checklist
+## 4. Callback URL
 
-- Allow inbound TCP 444 in Windows Firewall.
-- Port-forward router public TCP 444 to this machine's local IP.
-- Use your public callback URL in Discord OAuth settings (same as `DISCORD_CALLBACK_URL`).
-
-Example callback URL:
+Set Discord OAuth callback URL to:
 
 ```text
-http://YOUR_PUBLIC_IP/auth/discord/callback
+https://your-domain.com/auth/discord/callback
 ```
-=======
-# website
-s
->>>>>>> a211e12ab1ab890f7e082afec97008402e1487ac
