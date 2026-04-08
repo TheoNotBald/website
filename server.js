@@ -493,20 +493,29 @@ app.get("/auth/discord", (req, res, next) => {
 
   req.session.requestedPortal = portal;
   console.log(`[DEBUG] Set session.requestedPortal to: ${portal}`);
-  passport.authenticate("discord")(req, res, next);
+  req.session.save((err) => {
+    if (err) {
+      return next(err);
+    }
+    passport.authenticate("discord", { state: portal })(req, res, next);
+  });
 });
 
 app.get(
   "/auth/discord/callback",
   passport.authenticate("discord", { failureRedirect: "/" }),
   (req, res) => {
-    const requestedPortal = req.session.requestedPortal || "applicant";
+    const statePortal = (req.query.state || "").toString();
+    const sessionPortal = (req.session.requestedPortal || "").toString();
+    const requestedPortal = ["applicant", "staff", "manager"].includes(statePortal)
+      ? statePortal
+      : (["applicant", "staff", "manager"].includes(sessionPortal) ? sessionPortal : "applicant");
     const userId = req.user.id;
 
     const isManager = managerIds().has(userId);
     const isStaff = staffIds().has(userId) || isManager;
 
-    console.log(`[DEBUG] Callback: userId=${userId}, requestedPortal=${requestedPortal}, isStaff=${isStaff}, isManager=${isManager}`);
+    console.log(`[DEBUG] Callback: userId=${userId}, statePortal=${statePortal || "(none)"}, sessionPortal=${sessionPortal || "(none)"}, requestedPortal=${requestedPortal}, isStaff=${isStaff}, isManager=${isManager}`);
 
     if (requestedPortal === "manager" && !isManager) {
       req.logout(() => {
@@ -522,8 +531,14 @@ app.get(
       return;
     }
 
-    // Staff and manager go to their respective portals
-    const finalPortal = requestedPortal;
+    // If OAuth round-trip drops portal context, route by role so staff/manager never fall back to applicant.
+    let finalPortal = requestedPortal;
+    if (finalPortal === "applicant" && isManager) {
+      finalPortal = "manager";
+    } else if (finalPortal === "applicant" && isStaff) {
+      finalPortal = "staff";
+    }
+
     req.session.portal = finalPortal;
     console.log(`[DEBUG] Setting session.portal to: ${finalPortal}`);
     updateUserFromProfile(req.user);
