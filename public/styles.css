@@ -577,6 +577,31 @@ textarea {
   gap: 0.8rem;
 }
 
+.manager-log-list {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.manager-log-item {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 249, 255, 0.9);
+  padding: 0.85rem 0.95rem;
+}
+
+.manager-log-item p {
+  margin: 0.45rem 0;
+}
+
+.manager-log-item p:first-child {
+  margin-top: 0;
+}
+
+.manager-log-item p:last-child {
+  margin-bottom: 0;
+}
+
 .role-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
