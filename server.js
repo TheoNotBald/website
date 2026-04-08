@@ -492,6 +492,8 @@ app.get(
     const isManager = managerIds().has(userId);
     const isStaff = staffIds().has(userId) || isManager;
 
+    console.log(`[DEBUG] Callback: userId=${userId}, requestedPortal=${requestedPortal}, isStaff=${isStaff}, isManager=${isManager}`);
+
     if (requestedPortal === "manager" && !isManager) {
       req.logout(() => {
         res.status(403).send("You are not authorized for the manager portal.");
@@ -509,6 +511,7 @@ app.get(
     // Staff and manager go to their respective portals
     const finalPortal = requestedPortal;
     req.session.portal = finalPortal;
+    console.log(`[DEBUG] Setting session.portal to: ${finalPortal}`);
     updateUserFromProfile(req.user);
     res.redirect("/dashboard");
   }
@@ -519,6 +522,8 @@ app.get("/dashboard", ensureSignedIn, (req, res) => {
   const portal = req.session.portal;
   const user = data.users[req.user.id];
   const reviewerId = req.user.id;
+  console.log(`[DEBUG] Dashboard: portal=${portal}, userId=${req.user.id}, isAuthenticated=${req.isAuthenticated()}`);
+  console.log(`[DEBUG] Session portal value: ${JSON.stringify(req.session.portal)}`);
   const searchQuery = (req.query.search || "").toString().trim();
   const sideFilterRaw = (req.query.side || "").toString().trim().toLowerCase();
   const managerTabValues = ["pirates", "sailors", "pirates_unscored", "sailors_unscored", "accepted", "denied"];
