@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Application Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Signed in as <%= user ? (user.globalName || user.username) : "Unknown" %></p>
+          <h1><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Portal</h1>
+        </div>
+        <div class="topbar-actions">
+          <% if (portal === "manager") { %>
+          <a href="/manager-logs" class="button button-ghost">Logs</a>
+          <a href="/archives" class="button button-ghost">Archives</a>
+          <% } %>
+          <form method="post" action="/logout">
+            <button type="submit" class="button button-ghost">Log out</button>
+          </form>
+        </div>
+      </header>
+
+      <% if (notice) { %>
+      <section class="notice success"><%= notice %></section>
+      <% } %>
+
+      <% if (error) { %>
+      <section class="notice error"><%= error %></section>
+      <% } %>
+
+      <% if (portal === "applicant") { %>
+      <section class="panel">
+        <h2>Application Form</h2>
+        <p class="panel-subtitle">Capacity is unlimited and records auto-delete after 60 days.</p>
+
+        <% const draft = draftApplication || {}; %>
+        <% const formPage = Number(applicantFormPage || 1); %>
+        <% const flaggedFields = new Set(profanityFieldKeys || []); %>
+
+        <p class="panel-subtitle">Page <%= formPage %> of 4</p>
+
+        <% if (profanityFieldLabels && profanityFieldLabels.length) { %>
+        <section class="notice warning">
+          <strong>Profanity detected in:</strong> <%= profanityFieldLabels.join(", ") %>
+        </section>
+        <% } %>
+
+        <% if (formPage === 1) { %>
+        <form class="application-form" method="post" action="/applications/draft-step" autocomplete="off">
+          <input type="hidden" name="currentStep" value="1" />
+          <h3>Page 1</h3>
+          <label><span>IGN:</span><input name="ign" required value="<%= draft.ign || "" %>" class="<%= flaggedFields.has("ign") ? "field-flagged" : "" %>" /></label>
+          <label><span>Discord User:</span><input name="discordUser" required value="<%= draft.discordUser || "" %>" class="<%= flaggedFields.has("discordUser") ? "field-flagged" : "" %>" /></label>
+          <label><span>Discord UID:</span><input name="discordUid" required value="<%= draft.discordUid || "" %>" class="<%= flaggedFields.has("discordUid") ? "field-flagged" : "" %>" /></label>
+          <label><span>Age:</span><input type="number" min="13" max="120" name="age" required value="<%= draft.age || "" %>" class="<%= flaggedFields.has("age") ? "field-flagged" : "" %>" /></label>
+          <label><span>Timezone:</span><input name="timezone" required value="<%= draft.timezone || "" %>" class="<%= flaggedFields.has("timezone") ? "field-flagged" : "" %>" /></label>
+          <div class="decision-actions">
+            <button type="submit" name="direction" value="next" class="button">Next</button>
+          </div>
+        </form>
+        <% } %>
+
+        <% if (formPage === 2) { %>
+        <form class="application-form" method="post" action="/applications/draft-step" autocomplete="off">
+          <input type="hidden" name="currentStep" value="2" />
+          <h3>Page 2</h3>
+          <label>
+            <span>What side would you like to be on - pirates or sailors?</span>
+            <select name="preferredSide" required class="<%= flaggedFields.has("preferredSide") ? "field-flagged" : "" %>">
+              <option value="">Select one</option>
+              <option value="Pirates" <%= draft.preferredSide === "Pirates" ? "selected" : "" %>>Pirates</option>
+              <option value="Sailors" <%= draft.preferredSide === "Sailors" ? "selected" : "" %>>Sailors</option>
+            </select>
+          </label>
+          <label>
+            <span>Do you have a working microphone?</span>
+            <select name="hasMicrophone" required class="<%= flaggedFields.has("hasMicrophone") ? "field-flagged" : "" %>">
+              <option value="">Select one</option>
+              <option value="Yes" <%= draft.hasMicrophone === "Yes" ? "selected" : "" %>>Yes</option>
+              <option value="No" <%= draft.hasMicrophone === "No" ? "selected" : "" %>>No</option>
+            </select>
+          </label>
+          <label><span>Will you be streaming/recording this event? If so, where?</span><textarea name="streamingInfo" required class="<%= flaggedFields.has("streamingInfo") ? "field-flagged" : "" %>"><%= draft.streamingInfo || "" %></textarea></label>
+          <div class="decision-actions">
+            <button type="submit" name="direction" value="prev" class="button button-ghost">Previous</button>
+            <button type="submit" name="direction" value="next" class="button">Next</button>
+          </div>
+        </form>
+        <% } %>
+
+        <% if (formPage === 3) { %>
+        <form class="application-form" method="post" action="/applications/draft-step" autocomplete="off">
+          <input type="hidden" name="currentStep" value="3" />
+          <h3>Page 3</h3>
+          <label><span>Without telling us who you are, tell us a little bit about yourself.</span><textarea name="aboutYourself" required class="<%= flaggedFields.has("aboutYourself") ? "field-flagged" : "" %>"><%= draft.aboutYourself || "" %></textarea></label>
+          <label><span>What are your goals for this event?</span><textarea name="eventGoals" required class="<%= flaggedFields.has("eventGoals") ? "field-flagged" : "" %>"><%= draft.eventGoals || "" %></textarea></label>
+          <label><span>Describe your past experience with Minecraft events, roleplay events, and story-telling. Please be specific with your answers.</span><textarea name="pastEventExperience" required class="<%= flaggedFields.has("pastEventExperience") ? "field-flagged" : "" %>"><%= draft.pastEventExperience || "" %></textarea></label>
+          <label><span>Describe a character you may create for this event. Please be specific with your answers.</span><textarea name="characterDescription" required class="<%= flaggedFields.has("characterDescription") ? "field-flagged" : "" %>"><%= draft.characterDescription || "" %></textarea></label>
+          <label><span>Tell us about a time that something went wrong for you - did you fail? How did you fail? What did you do when you failed?</span><textarea name="failureStory" required class="<%= flaggedFields.has("failureStory") ? "field-flagged" : "" %>"><%= draft.failureStory || "" %></textarea></label>
+          <div class="decision-actions">
+            <button type="submit" name="direction" value="prev" class="button button-ghost">Previous</button>
+            <button type="submit" name="direction" value="next" class="button">Next</button>
+          </div>
+        </form>
+        <% } %>
+
+        <% if (formPage === 4) { %>
+        <form class="application-form" method="post" action="/applications/submit-step" autocomplete="off">
+          <h3>Page 4</h3>
+          <label><span>Three pirates corner you, demanding you hand over your gear and your valuables. You don't have much on you, but you have a few diamonds that you found in a chest nearby. What do you do?</span><textarea name="scenarioPiratesCornerYou" required class="<%= flaggedFields.has("scenarioPiratesCornerYou") ? "field-flagged" : "" %>"><%= draft.scenarioPiratesCornerYou || "" %></textarea></label>
+          <label><span>You come across a group of sailors that have been stranded on an island with very little food. They are hungry, and you and your team has an abundance of bread and cooked steak. What do you do?</span><textarea name="scenarioStrandedSailors" required class="<%= flaggedFields.has("scenarioStrandedSailors") ? "field-flagged" : "" %>"><%= draft.scenarioStrandedSailors || "" %></textarea></label>
+          <div class="decision-actions">
+            <a class="button button-ghost" href="/dashboard?formPage=3">Previous</a>
+            <button type="submit" class="button">Submit Event Application</button>
+          </div>
+        </form>
+        <% } %>
+
+        <div class="decision-actions">
+          <form method="post" action="/applications/test/pirates" class="decision-form"><button type="submit" class="button button-ghost">Send Test Pirate Application</button></form>
+          <form method="post" action="/applications/test/sailors" class="decision-form"><button type="submit" class="button button-ghost">Send Test Sailor Application</button></form>
+        </div>
+      </section>
+      <% } %>
+
+      <% if (portal === "staff" || portal === "manager") { %>
+      <section class="panel">
+        <h2><%= portal === "manager" ? "Event Application Queue" : "Event Review Queue" %></h2>
+        <p class="panel-subtitle">Oldest applications are first. Under review is prioritized for managers. Accepted/denied move lower.</p>
+        <% const sideCountData = typeof sideCounts !== "undefined" ? sideCounts : { pirates: 0, sailors: 0, piratesUnscored: 0, sailorsUnscored: 0, accepted: 0, denied: 0 }; %>
+        <% const isStaffAllCaughtUp = portal === "staff" && Number(staffRemainingTotal || 0) === 0; %>
+
+        <% if (isStaffAllCaughtUp) { %>
+        <section class="notice success">All caught up!</section>
+        <% } else { %>
+
+        <div class="side-filter-buttons">
+          <a class="button button-ghost <%= selectedSideFilter === "pirates" ? "button-active" : "" %>" href="/dashboard?page=1&side=pirates&search=<%= encodeURIComponent(searchQuery || "") %>">Pirates (<%= sideCountData.pirates || 0 %>)</a>
+          <a class="button button-ghost <%= selectedSideFilter === "sailors" ? "button-active" : "" %>" href="/dashboard?page=1&side=sailors&search=<%= encodeURIComponent(searchQuery || "") %>">Sailors (<%= sideCountData.sailors || 0 %>)</a>
+          <% if (portal === "manager") { %>
+          <a class="button button-ghost <%= selectedSideFilter === "pirates_unscored" ? "button-active" : "" %>" href="/dashboard?page=1&side=pirates_unscored&search=<%= encodeURIComponent(searchQuery || "") %>">Pirates Unscored (<%= sideCountData.piratesUnscored || 0 %>)</a>
+          <a class="button button-ghost <%= selectedSideFilter === "sailors_unscored" ? "button-active" : "" %>" href="/dashboard?page=1&side=sailors_unscored&search=<%= encodeURIComponent(searchQuery || "") %>">Sailors Unscored (<%= sideCountData.sailorsUnscored || 0 %>)</a>
+          <a class="button button-ghost <%= selectedSideFilter === "accepted" ? "button-active" : "" %>" href="/dashboard?page=1&side=accepted&search=<%= encodeURIComponent(searchQuery || "") %>">Accepted (<%= sideCountData.accepted || 0 %>)</a>
+          <a class="button button-ghost <%= selectedSideFilter === "denied" ? "button-active" : "" %>" href="/dashboard?page=1&side=denied&search=<%= encodeURIComponent(searchQuery || "") %>">Denied (<%= sideCountData.denied || 0 %>)</a>
+          <% } %>
+        </div>
+
+        <% if (portal === "manager") { %>
+        <form method="get" action="/dashboard" class="search-form">
+          <input type="hidden" name="page" value="1" />
+          <input type="hidden" name="side" value="<%= selectedSideFilter || "" %>" />
+          <input name="search" placeholder="Search by IGN" value="<%= searchQuery || "" %>" />
+          <button type="submit" class="button button-ghost">Search</button>
+        </form>
+        <% } %>
+
+        <% const page = Number(currentPage || 1); %>
+        <% const pages = Number(totalPages || 1); %>
+        <% const encodedSearch = encodeURIComponent(searchQuery || ""); %>
+        <% const encodedSide = encodeURIComponent(selectedSideFilter || ""); %>
+        <% const hasPrev = page > 1; %>
+        <% const hasNext = page < pages; %>
+
+        <% if (!applications.length) { %><p>No applications yet.</p><% } %>
+
+        <div class="application-grid">
+          <% applications.forEach((entry) => { %>
+          <% const managerScore35 = entry.averageScore !== null ? (entry.averageScore * 7) : null; %>
+          <article class="application-card">
+            <header>
+              <h3><%= portal === "manager" ? ("#" + entry.id + " - " + entry.answers.ign) : ("#" + entry.id + " - Anonymous Applicant") %></h3>
+              <div class="card-statuses">
+                <span class="status status-<%= entry.status %>"><%= entry.status %></span>
+                <% if (portal === "manager" && managerScore35 !== null) { %>
+                <span class="status status-rating">Rating: <%= managerScore35 !== null ? ((Number.isInteger(managerScore35) ? managerScore35 : managerScore35.toFixed(1)) + "/35") : "N/A" %></span>
+                <% } %>
+              </div>
+            </header>
+
+            <% if (portal === "manager") { %>
+            <p class="qa-item"><strong>What is your in-game name (IGN)?</strong><span><%= entry.answers.ign %></span></p>
+            <p class="qa-item"><strong>What is your Discord user?</strong><span><%= entry.answers.discordUser %></span></p>
+            <p class="qa-item"><strong>What is your Discord UID?</strong><span><%= entry.answers.discordUid %></span></p>
+            <p class="qa-item"><strong>How old are you?</strong><span><%= entry.answers.age %></span></p>
+            <p class="qa-item"><strong>What timezone are you in?</strong><span><%= entry.answers.timezone %></span></p>
+            <p class="qa-item"><strong>What side would you like to be on - pirates or sailors?</strong><span><%= entry.answers.preferredSide %></span></p>
+            <p class="qa-item"><strong>Do you have a working microphone?</strong><span><%= entry.answers.hasMicrophone %></span></p>
+            <p class="qa-item"><strong>Will you be streaming/recording this event? If so, where?</strong><span><%= entry.answers.streamingInfo %></span></p>
+            <% } %>
+
+            <% if (portal === "manager") { %>
+            <p class="qa-item"><strong>Average score</strong><span><%= managerScore35 !== null ? ((Number.isInteger(managerScore35) ? managerScore35 : managerScore35.toFixed(1)) + "/35") : "Not scored yet" %></span></p>
+            <p class="qa-item"><strong>Score submissions</strong><span><%= entry.scoreSubmissionCount || 0 %></span></p>
+            <% } %>
+            <% if (portal === "staff") { %>
+            <form method="post" action="/applications/<%= entry.id %>/under-review" class="decision-form" data-rating-form="true">
+            <% } %>
+
+            <div class="qa-item">
+              <strong>Without telling us who you are, tell us a little bit about yourself.</strong>
+              <span><%= entry.answers.aboutYourself %></span>
+              <% if (portal === "staff") { %>
+              <p class="inline-rating-label">Rate this answer</p>
+              <div class="rating-circle-row">
+                <% [1,2,3,4,5].forEach((n) => { %>
+                <label class="rating-circle-pill"><input type="radio" name="aboutYourself" value="<%= n %>" required /><span><%= n %></span></label>
+                <% }); %>
+              </div>
+              <% } %>
+            </div>
+
+            <div class="qa-item">
+              <strong>What are your goals for this event?</strong>
+              <span><%= entry.answers.eventGoals %></span>
+              <% if (portal === "staff") { %>
+              <p class="inline-rating-label">Rate this answer</p>
+              <div class="rating-circle-row">
+                <% [1,2,3,4,5].forEach((n) => { %>
+                <label class="rating-circle-pill"><input type="radio" name="eventGoals" value="<%= n %>" required /><span><%= n %></span></label>
+                <% }); %>
+              </div>
+              <% } %>
+            </div>
+
+            <div class="qa-item">
+              <strong>Describe your past experience with Minecraft events, roleplay events, and story-telling. Please be specific with your answers.</strong>
+              <span><%= entry.answers.pastEventExperience %></span>
+              <% if (portal === "staff") { %>
+              <p class="inline-rating-label">Rate this answer</p>
+              <div class="rating-circle-row">
+                <% [1,2,3,4,5].forEach((n) => { %>
+                <label class="rating-circle-pill"><input type="radio" name="pastEventExperience" value="<%= n %>" required /><span><%= n %></span></label>
+                <% }); %>
+              </div>
+              <% } %>
+            </div>
+
+            <div class="qa-item">
+              <strong>Describe a character you may create for this event. Please be specific with your answers.</strong>
+              <span><%= entry.answers.characterDescription %></span>
+              <% if (portal === "staff") { %>
+              <p class="inline-rating-label">Rate this answer</p>
+              <div class="rating-circle-row">
+                <% [1,2,3,4,5].forEach((n) => { %>
+                <label class="rating-circle-pill"><input type="radio" name="characterDescription" value="<%= n %>" required /><span><%= n %></span></label>
+                <% }); %>
+              </div>
+              <% } %>
+            </div>
+
+            <div class="qa-item">
+              <strong>Tell us about a time that something went wrong for you - did you fail? How did you fail? What did you do when you failed?</strong>
+              <span><%= entry.answers.failureStory %></span>
+              <% if (portal === "staff") { %>
+              <p class="inline-rating-label">Rate this answer</p>
+              <div class="rating-circle-row">
+                <% [1,2,3,4,5].forEach((n) => { %>
+                <label class="rating-circle-pill"><input type="radio" name="failureStory" value="<%= n %>" required /><span><%= n %></span></label>
+                <% }); %>
+              </div>
+              <% } %>
+            </div>
+
+            <div class="qa-item">
+              <strong>Three pirates corner you, demanding you hand over your gear and your valuables. You don't have much on you, but you have a few diamonds that you found in a chest nearby. What do you do?</strong>
+              <span><%= entry.answers.scenarioPiratesCornerYou %></span>
+              <% if (portal === "staff") { %>
+              <p class="inline-rating-label">Rate this answer</p>
+              <div class="rating-circle-row">
+                <% [1,2,3,4,5].forEach((n) => { %>
+                <label class="rating-circle-pill"><input type="radio" name="scenarioPiratesCornerYou" value="<%= n %>" required /><span><%= n %></span></label>
+                <% }); %>
+              </div>
+              <% } %>
+            </div>
+
+            <div class="qa-item">
+              <strong>You come across a group of sailors that have been stranded on an island with very little food. They are hungry, and you and your team has an abundance of bread and cooked steak. What do you do?</strong>
+              <span><%= entry.answers.scenarioStrandedSailors %></span>
+              <% if (portal === "staff") { %>
+              <p class="inline-rating-label">Rate this answer</p>
+              <div class="rating-circle-row">
+                <% [1,2,3,4,5].forEach((n) => { %>
+                <label class="rating-circle-pill"><input type="radio" name="scenarioStrandedSailors" value="<%= n %>" required /><span><%= n %></span></label>
+                <% }); %>
+              </div>
+              <% } %>
+            </div>
+
+            <% if (portal === "manager" && entry.reviewedBy) { %><p><strong>Reviewed By:</strong> <%= entry.reviewerName %></p><% } %>
+            <% if (portal === "manager" && entry.reviewerAlias) { %><p><strong>Reviewer Alias:</strong> <%= entry.reviewerAlias %></p><% } %>
+            <% if (portal === "manager" && entry.decisionReason) { %><p><strong>Decision Reason:</strong> <%= entry.decisionReason %></p><% } %>
+            <% if (portal === "manager" && entry.lastViewedByAlias) { %><p><strong>Last Staff Viewer:</strong> <%= entry.lastViewedByAlias %></p><% } %>
+            <% if (portal === "manager" && entry.status === "under_review" && entry.underReviewAt) { %><p><strong>Marked Under Review:</strong> <%= new Date(entry.underReviewAt).toLocaleString() %></p><% } %>
+
+            <% if (portal === "manager" && entry.staffReviews && entry.staffReviews.length) { %>
+            <div class="review-block">
+              <h4>Staff Review Notes</h4>
+              <% entry.staffReviews.slice().reverse().forEach((review) => { %>
+              <% if (review.comment) { %>
+              <p><strong><%= review.staffDisplayName %>:</strong> <%= review.comment %></p>
+              <% } else { %>
+              <p><strong><%= review.staffDisplayName %>:</strong> No comment provided.</p>
+              <% } %>
+              <% if (review.rating !== undefined && review.rating !== null && review.rating !== "") { %>
+              <p><strong>Rating:</strong> <%= portal === "manager" ? ((Number.isInteger(review.rating * 7) ? (review.rating * 7) : (review.rating * 7).toFixed(1)) + "/35") : (review.rating + "/5") %></p>
+              <% } %>
+              <% }); %>
+            </div>
+            <% } %>
+
+            <% if (portal === "staff") { %>
+              <div class="qa-item total-score-box">
+                <strong>Total Score Selected</strong>
+                <span class="total-score-value" data-score-total>0 / 35</span>
+              </div>
+              <label>
+                <span>Optional Comment</span>
+                <textarea name="staffComment" placeholder="Add optional context for managers..."></textarea>
+              </label>
+
+              <button type="submit" class="button button-warning">Submit</button>
+            </form>
+            <% } %>
+
+            <% if (portal === "manager") { %>
+            <div class="manager-card-actions">
+              <form method="post" action="/applications/<%= entry.id %>/archive"><button type="submit" class="button button-ghost">Archive</button></form>
+              <a class="button button-ghost" href="/applications/<%= entry.id %>/download">Download</a>
+            </div>
+
+            <form method="post" action="/applications/<%= entry.id %>/decision" class="decision-form">
+              <label><span>Manager Name or Discord User (required)</span><input name="reviewerAlias" required /></label>
+              <label><span>Required Explanation</span><textarea name="decisionReason" required></textarea></label>
+              <div class="decision-actions">
+                <button type="submit" class="button" name="decision" value="accepted">Accept + DM</button>
+                <button type="submit" class="button button-danger" name="decision" value="denied">Deny + DM</button>
+              </div>
+            </form>
+
+            <form method="post" action="/applications/<%= entry.id %>/delete" class="danger-form" onsubmit="return confirm('Warning: This will permanently delete this application. This cannot be undone. Continue?');">
+              <input type="hidden" name="confirmDelete" value="yes" />
+              <label><span>Manager Name or Discord User (required)</span><input name="managerAlias" required /></label>
+              <label><span>Delete Reason (required)</span><textarea name="deleteReason" required></textarea></label>
+              <p class="warning-text">Warning: delete permanently removes the application record.</p>
+              <button type="submit" class="button button-danger">Delete Application Permanently</button>
+            </form>
+            <% } %>
+          </article>
+          <% }); %>
+        </div>
+
+        <% if (totalResults > 0) { %>
+        <div class="pagination-bar">
+          <p class="panel-subtitle">Showing application <%= page %> of <%= pages %> (<%= totalResults %> total)</p>
+          <div class="pagination-actions">
+            <% if (hasPrev) { %>
+            <a class="button button-ghost" href="/dashboard?page=<%= page - 1 %>&search=<%= encodedSearch %>&side=<%= encodedSide %>">Previous</a>
+            <% } else { %>
+            <span class="button button-ghost button-disabled">Previous</span>
+            <% } %>
+
+            <% if (hasNext) { %>
+            <a class="button button-ghost" href="/dashboard?page=<%= page + 1 %>&search=<%= encodedSearch %>&side=<%= encodedSide %>">Next</a>
+            <% } else { %>
+            <span class="button button-ghost button-disabled">Next</span>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+        <% } %>
+      </section>
+      <% } %>
+    </main>
+
+    <script>
+      (function () {
+        const scoreFieldNames = [
+          "aboutYourself",
+          "eventGoals",
+          "pastEventExperience",
+          "characterDescription",
+          "failureStory",
+          "scenarioPiratesCornerYou",
+          "scenarioStrandedSailors"
+        ];
+        const maxTotal = scoreFieldNames.length * 5;
+        const forms = document.querySelectorAll('form[data-rating-form="true"]');
+
+        forms.forEach((form) => {
+          const totalNode = form.querySelector('[data-score-total]');
+          if (!totalNode) {
+            return;
+          }
+
+          const updateTotal = () => {
+            const total = scoreFieldNames.reduce((sum, fieldName) => {
+              const checked = form.querySelector(`input[name="${fieldName}"]:checked`);
+              return sum + (checked ? Number(checked.value || 0) : 0);
+            }, 0);
+            totalNode.textContent = `${total} / ${maxTotal}`;
+          };
+
+          form.addEventListener("change", updateTotal);
+          updateTotal();
+        });
+      })();
+    </script>
+  </body>
+</html>

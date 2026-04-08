@@ -1,0 +1,1149 @@
+{
+  "users": {
+    "dev-applicant": {
+      "id": "dev-applicant",
+      "username": "applicant_user",
+      "discriminator": "0000",
+      "globalName": "Applicant Test",
+      "avatar": null,
+      "lastLoginAt": "2026-03-31T21:13:58.453Z"
+    },
+    "dev-staff": {
+      "id": "dev-staff",
+      "username": "staff_user",
+      "discriminator": "0000",
+      "globalName": "Staff Test",
+      "avatar": null,
+      "lastLoginAt": "2026-03-30T21:41:44.729Z"
+    },
+    "dev-manager": {
+      "id": "dev-manager",
+      "username": "manager_user",
+      "discriminator": "0000",
+      "globalName": "Manager Test",
+      "avatar": null,
+      "lastLoginAt": "2026-03-30T21:41:48.507Z"
+    },
+    "local-staff-admin": {
+      "id": "local-staff-admin",
+      "username": "admin",
+      "discriminator": "0000",
+      "globalName": "Staff admin",
+      "avatar": null,
+      "lastLoginAt": "2026-04-03T01:20:16.130Z"
+    },
+    "local-manager-admin": {
+      "id": "local-manager-admin",
+      "username": "admin",
+      "discriminator": "0000",
+      "globalName": "Manager admin",
+      "avatar": null,
+      "lastLoginAt": "2026-04-03T01:27:43.529Z"
+    },
+    "test-applicant": {
+      "id": "test-applicant",
+      "username": "test_applicant",
+      "discriminator": "0000",
+      "globalName": "Applicant Test",
+      "avatar": null,
+      "lastLoginAt": "2026-04-04T04:25:16.635Z"
+    },
+    "local-staff-test": {
+      "id": "local-staff-test",
+      "username": "test",
+      "discriminator": "0000",
+      "globalName": "Staff test",
+      "avatar": null,
+      "lastLoginAt": "2026-04-03T01:14:16.002Z"
+    },
+    "local-staff-test2": {
+      "id": "local-staff-test2",
+      "username": "test2",
+      "discriminator": "0000",
+      "globalName": "Staff test2",
+      "avatar": null,
+      "lastLoginAt": "2026-04-03T00:08:57.912Z"
+    },
+    "local-staff-test3": {
+      "id": "local-staff-test3",
+      "username": "test3",
+      "discriminator": "0000",
+      "globalName": "Staff test3",
+      "avatar": null,
+      "lastLoginAt": "2026-04-03T00:27:14.411Z"
+    }
+  },
+  "applications": [
+    {
+      "id": 1,
+      "discordId": "dev-applicant",
+      "ipHash": "5c44680989080b5c5a377beb64df7d00661f6e5b350b7dc0afbdefad75cdbd1a",
+      "status": "under_review",
+      "answers": {
+        "minecraftUsername": "FlowCheck",
+        "age": 17,
+        "timezone": "EST",
+        "hoursPerWeek": 10,
+        "priorStaffExperience": "none",
+        "rolesExperience": "helper",
+        "pluginExperience": "none",
+        "commandTools": "basic",
+        "goodStaffTraits": "calm",
+        "scenarioToxic": "warn",
+        "scenarioCheatingClaims": "investigate",
+        "scenarioHackUnsure": "observe",
+        "scenarioFriendBreaksRules": "same rules",
+        "scenarioMinorRulesRepeat": "escalate"
+      },
+      "createdAt": "2026-03-30T22:17:20.624Z",
+      "updatedAt": "2026-04-03T01:14:46.061Z",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "staffReviews": [
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff Test",
+          "explanation": "Moved to manager review",
+          "at": "2026-03-30T22:17:20.639Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff Rating Test",
+          "explanation": "Rating added in form",
+          "rating": 2,
+          "at": "2026-03-31T21:15:04.032Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff Rating Test",
+          "explanation": "Rating added in form",
+          "rating": 2,
+          "at": "2026-03-31T21:39:06.572Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "seed",
+          "explanation": "seed",
+          "rating": 2,
+          "at": "2026-03-31T22:16:21.724Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff Rater",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 3,
+            "eventGoals": 4,
+            "pastEventExperience": 2,
+            "characterDescription": 5,
+            "failureStory": 3,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 3.71,
+          "overallAverage": 3.71,
+          "at": "2026-03-31T22:31:51.360Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff Rater",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 3,
+            "eventGoals": 4,
+            "pastEventExperience": 2,
+            "characterDescription": 5,
+            "failureStory": 3,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 3.71,
+          "overallAverage": 3.71,
+          "at": "2026-03-31T22:31:59.548Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "auto alias check",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 5,
+          "overallAverage": 5,
+          "at": "2026-04-01T00:53:39.809Z"
+        },
+        {
+          "staffId": "local-staff-test2",
+          "staffAlias": "Staff test2",
+          "comment": "attempt 1",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 4,
+          "overallAverage": 4,
+          "at": "2026-04-03T00:08:57.944Z"
+        },
+        {
+          "staffId": "local-staff-test2",
+          "staffAlias": "Staff test2",
+          "comment": "attempt 2",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 4,
+          "overallAverage": 4,
+          "at": "2026-04-03T00:08:57.948Z"
+        },
+        {
+          "staffId": "local-staff-test2",
+          "staffAlias": "Staff test2",
+          "comment": "attempt 3",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 4,
+          "overallAverage": 4,
+          "at": "2026-04-03T00:08:57.950Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 3,
+            "pastEventExperience": 3,
+            "characterDescription": 4,
+            "failureStory": 2,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 3
+          },
+          "rating": 3.57,
+          "overallAverage": 3.57,
+          "at": "2026-04-03T00:10:36.535Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 1,
+            "eventGoals": 3,
+            "pastEventExperience": 3,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 3
+          },
+          "rating": 3.14,
+          "overallAverage": 3.14,
+          "at": "2026-04-03T00:18:02.848Z"
+        },
+        {
+          "staffId": "local-staff-test3",
+          "staffAlias": "Staff test3",
+          "comment": "first",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 4,
+          "overallAverage": 4,
+          "at": "2026-04-03T00:27:14.240Z"
+        },
+        {
+          "staffId": "local-staff-test",
+          "staffAlias": "Staff test",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 5,
+          "overallAverage": 5,
+          "at": "2026-04-03T01:14:46.061Z"
+        }
+      ],
+      "lastViewedBy": "local-staff-test",
+      "lastViewedByAlias": "Staff test",
+      "underReviewBy": "local-staff-test",
+      "underReviewAt": "2026-04-03T01:14:46.061Z",
+      "staffQuickRating": 5,
+      "questionScores": [
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-01T00:53:39.809Z"
+        },
+        {
+          "reviewerId": "local-staff-test2",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test2",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T00:08:57.944Z"
+        },
+        {
+          "reviewerId": "local-staff-test2",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test2",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T00:08:57.948Z"
+        },
+        {
+          "reviewerId": "local-staff-test2",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test2",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T00:08:57.950Z"
+        },
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 3,
+            "pastEventExperience": 3,
+            "characterDescription": 4,
+            "failureStory": 2,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 3
+          },
+          "submittedAt": "2026-04-03T00:10:36.535Z"
+        },
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 1,
+            "eventGoals": 3,
+            "pastEventExperience": 3,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 3
+          },
+          "submittedAt": "2026-04-03T00:18:02.848Z"
+        },
+        {
+          "reviewerId": "local-staff-test3",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test3",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T00:27:14.240Z"
+        },
+        {
+          "reviewerId": "local-staff-test",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T01:14:46.061Z"
+        }
+      ],
+      "averageScore": 4.09
+    },
+    {
+      "id": 2,
+      "discordId": "dev-applicant",
+      "ipHash": "5c44680989080b5c5a377beb64df7d00661f6e5b350b7dc0afbdefad75cdbd1a",
+      "status": "under_review",
+      "answers": {
+        "minecraftUsername": "TestUser1378",
+        "age": 18,
+        "timezone": "EST",
+        "hoursPerWeek": 12,
+        "priorStaffExperience": "Yes, helper on a small server.",
+        "rolesExperience": "Helper and Moderator",
+        "pluginExperience": "EssentialsX, LuckPerms",
+        "commandTools": "EssentialsX, WorldEdit",
+        "goodStaffTraits": "Patience, fairness, and clear communication.",
+        "scenarioToxic": "Warn the player, mute if needed, and document the incident.",
+        "scenarioCheatingClaims": "Gather evidence from both sides and observe before action.",
+        "scenarioHackUnsure": "Monitor and collect proof before escalating.",
+        "scenarioFriendBreaksRules": "Apply the same rules without favoritism.",
+        "scenarioMinorRulesRepeat": "Escalate from warning to timed punishment based on policy."
+      },
+      "createdAt": "2026-03-30T22:24:31.379Z",
+      "updatedAt": "2026-04-03T01:14:55.029Z",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "staffReviews": [
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "sd",
+          "explanation": "zx",
+          "rating": 0,
+          "at": "2026-03-31T21:13:30.893Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 3,
+            "pastEventExperience": 5,
+            "characterDescription": 2,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 3,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 3.86,
+          "overallAverage": 3.86,
+          "at": "2026-04-03T00:23:15.446Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 4,
+          "overallAverage": 4,
+          "at": "2026-04-03T00:23:23.551Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 5,
+          "overallAverage": 5,
+          "at": "2026-04-03T00:23:31.751Z"
+        },
+        {
+          "staffId": "local-staff-test",
+          "staffAlias": "Staff test",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 5,
+          "overallAverage": 5,
+          "at": "2026-04-03T01:14:55.029Z"
+        }
+      ],
+      "lastViewedBy": "local-staff-test",
+      "lastViewedByAlias": "Staff test",
+      "underReviewBy": "local-staff-test",
+      "underReviewAt": "2026-04-03T01:14:55.029Z",
+      "staffQuickRating": 5,
+      "questionScores": [
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 3,
+            "pastEventExperience": 5,
+            "characterDescription": 2,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 3,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T00:23:15.446Z"
+        },
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 4,
+            "eventGoals": 4,
+            "pastEventExperience": 4,
+            "characterDescription": 4,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T00:23:23.550Z"
+        },
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T00:23:31.751Z"
+        },
+        {
+          "reviewerId": "local-staff-test",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T01:14:55.029Z"
+        }
+      ],
+      "averageScore": 4.46
+    },
+    {
+      "id": 3,
+      "discordId": "dev-applicant",
+      "ipHash": "5c44680989080b5c5a377beb64df7d00661f6e5b350b7dc0afbdefad75cdbd1a",
+      "status": "under_review",
+      "answers": {
+        "minecraftUsername": "TestUser1381",
+        "age": 18,
+        "timezone": "EST",
+        "hoursPerWeek": 12,
+        "priorStaffExperience": "Yes, helper on a small server.",
+        "rolesExperience": "Helper and Moderator",
+        "pluginExperience": "EssentialsX, LuckPerms",
+        "commandTools": "EssentialsX, WorldEdit",
+        "goodStaffTraits": "Patience, fairness, and clear communication.",
+        "scenarioToxic": "Warn the player, mute if needed, and document the incident.",
+        "scenarioCheatingClaims": "Gather evidence from both sides and observe before action.",
+        "scenarioHackUnsure": "Monitor and collect proof before escalating.",
+        "scenarioFriendBreaksRules": "Apply the same rules without favoritism.",
+        "scenarioMinorRulesRepeat": "Escalate from warning to timed punishment based on policy."
+      },
+      "createdAt": "2026-03-30T22:24:31.381Z",
+      "updatedAt": "2026-04-03T01:15:02.112Z",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "staffReviews": [
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "s",
+          "explanation": "s",
+          "rating": 0,
+          "at": "2026-03-31T21:13:46.730Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 5,
+          "overallAverage": 5,
+          "at": "2026-04-03T00:23:39.067Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 5,
+          "overallAverage": 5,
+          "at": "2026-04-03T00:23:47.640Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 4.86,
+          "overallAverage": 4.86,
+          "at": "2026-04-03T00:23:55.891Z"
+        },
+        {
+          "staffId": "local-staff-test",
+          "staffAlias": "Staff test",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "rating": 5,
+          "overallAverage": 5,
+          "at": "2026-04-03T01:15:02.112Z"
+        }
+      ],
+      "lastViewedBy": "local-staff-test",
+      "lastViewedByAlias": "Staff test",
+      "underReviewBy": "local-staff-test",
+      "underReviewAt": "2026-04-03T01:15:02.112Z",
+      "staffQuickRating": 5,
+      "questionScores": [
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T00:23:39.067Z"
+        },
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T00:23:47.640Z"
+        },
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 4,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T00:23:55.891Z"
+        },
+        {
+          "reviewerId": "local-staff-test",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 5,
+            "pastEventExperience": 5,
+            "characterDescription": 5,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 5
+          },
+          "submittedAt": "2026-04-03T01:15:02.112Z"
+        }
+      ],
+      "averageScore": 4.96
+    },
+    {
+      "id": 4,
+      "discordId": "dev-applicant",
+      "ipHash": "5c44680989080b5c5a377beb64df7d00661f6e5b350b7dc0afbdefad75cdbd1a",
+      "status": "under_review",
+      "answers": {
+        "minecraftUsername": "TestUser6337",
+        "age": 18,
+        "timezone": "EST",
+        "hoursPerWeek": 12,
+        "priorStaffExperience": "Yes, helper on a small server.",
+        "rolesExperience": "Helper and Moderator",
+        "pluginExperience": "EssentialsX, LuckPerms",
+        "commandTools": "EssentialsX, WorldEdit",
+        "goodStaffTraits": "Patience, fairness, and clear communication.",
+        "scenarioToxic": "Warn the player, mute if needed, and document the incident.",
+        "scenarioCheatingClaims": "Gather evidence from both sides and observe before action.",
+        "scenarioHackUnsure": "Monitor and collect proof before escalating.",
+        "scenarioFriendBreaksRules": "Apply the same rules without favoritism.",
+        "scenarioMinorRulesRepeat": "Escalate from warning to timed punishment based on policy."
+      },
+      "createdAt": "2026-03-30T22:25:36.338Z",
+      "updatedAt": "2026-04-03T01:14:38.760Z",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "staffReviews": [
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "d",
+          "explanation": "d",
+          "rating": 0,
+          "at": "2026-03-31T21:13:41.768Z"
+        },
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 3,
+            "pastEventExperience": 2,
+            "characterDescription": 4,
+            "failureStory": 1,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 3.43,
+          "overallAverage": 3.43,
+          "at": "2026-04-03T01:13:58.964Z"
+        },
+        {
+          "staffId": "local-staff-test",
+          "staffAlias": "Staff test",
+          "comment": "",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 4,
+            "pastEventExperience": 5,
+            "characterDescription": 4,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 4.43,
+          "overallAverage": 4.43,
+          "at": "2026-04-03T01:14:38.760Z"
+        }
+      ],
+      "lastViewedBy": "local-staff-test",
+      "lastViewedByAlias": "Staff test",
+      "underReviewBy": "local-staff-test",
+      "underReviewAt": "2026-04-03T01:14:38.760Z",
+      "staffQuickRating": 4.43,
+      "questionScores": [
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 3,
+            "pastEventExperience": 2,
+            "characterDescription": 4,
+            "failureStory": 1,
+            "scenarioPiratesCornerYou": 5,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T01:13:58.964Z"
+        },
+        {
+          "reviewerId": "local-staff-test",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff test",
+          "scores": {
+            "aboutYourself": 5,
+            "eventGoals": 4,
+            "pastEventExperience": 5,
+            "characterDescription": 4,
+            "failureStory": 5,
+            "scenarioPiratesCornerYou": 4,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T01:14:38.760Z"
+        }
+      ],
+      "averageScore": 3.93
+    },
+    {
+      "id": 5,
+      "discordId": "test-applicant",
+      "ipHash": "c0ca731b2d7a57494940314eca8296df38d773dd03ad428c02c7ce7be8f31423",
+      "status": "accepted",
+      "answers": {
+        "ign": "TestUser9484",
+        "discordUser": "testuser#9484",
+        "discordUid": "100000000000009484",
+        "age": 18,
+        "timezone": "EST",
+        "preferredSide": "Sailors",
+        "hasMicrophone": "Yes",
+        "streamingInfo": "No",
+        "aboutYourself": "I am a calm and competitive Minecraft player who likes team strategy.",
+        "eventGoals": "Create good story moments and support my crew.",
+        "pastEventExperience": "I played in two lore-heavy SMP events with voice roleplay.",
+        "characterDescription": "A daring quartermaster focused on naval scouting and trade routes.",
+        "failureStory": "I once overcommitted in a PvP tournament and lost resources; I regrouped and adapted tactics.",
+        "scenarioPiratesCornerYou": "I negotiate first, protect my team, and avoid pointless escalation while roleplaying the scene.",
+        "scenarioStrandedSailors": "I would share food and build trust for future diplomacy, unless my faction orders otherwise."
+      },
+      "createdAt": "2026-04-03T00:23:09.485Z",
+      "updatedAt": "2026-04-03T00:25:28.218Z",
+      "reviewedBy": "local-manager-admin",
+      "reviewedAt": "2026-04-03T00:25:28.218Z",
+      "questionScores": [
+        {
+          "reviewerId": "local-staff-admin",
+          "reviewerPortal": "staff",
+          "reviewerAlias": "Staff admin",
+          "scores": {
+            "aboutYourself": 3,
+            "eventGoals": 4,
+            "pastEventExperience": 1,
+            "characterDescription": 2,
+            "failureStory": 1,
+            "scenarioPiratesCornerYou": 3,
+            "scenarioStrandedSailors": 4
+          },
+          "submittedAt": "2026-04-03T00:24:04.698Z"
+        }
+      ],
+      "staffReviews": [
+        {
+          "staffId": "local-staff-admin",
+          "staffAlias": "Staff admin",
+          "comment": "Testing",
+          "scores": {
+            "aboutYourself": 3,
+            "eventGoals": 4,
+            "pastEventExperience": 1,
+            "characterDescription": 2,
+            "failureStory": 1,
+            "scenarioPiratesCornerYou": 3,
+            "scenarioStrandedSailors": 4
+          },
+          "rating": 2.57,
+          "overallAverage": 2.57,
+          "at": "2026-04-03T00:24:04.698Z"
+        }
+      ],
+      "averageScore": 2.57,
+      "staffQuickRating": 2.57,
+      "lastViewedBy": "local-staff-admin",
+      "lastViewedByAlias": "Staff admin",
+      "underReviewBy": "local-staff-admin",
+      "underReviewAt": "2026-04-03T00:24:04.698Z",
+      "reviewerAlias": "sds",
+      "decisionReason": "cdscsd",
+      "reviewHistory": [
+        {
+          "decision": "accepted",
+          "reviewerId": "local-manager-admin",
+          "reviewerAlias": "sds",
+          "decisionReason": "cdscsd",
+          "at": "2026-04-03T00:25:28.218Z"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "discordId": "test-applicant",
+      "ipHash": "c0ca731b2d7a57494940314eca8296df38d773dd03ad428c02c7ce7be8f31423",
+      "status": "pending",
+      "answers": {
+        "ign": "TestUser9299",
+        "discordUser": "testuser#9299",
+        "discordUid": "100000000000009299",
+        "age": 18,
+        "timezone": "EST",
+        "preferredSide": "Pirates",
+        "hasMicrophone": "Yes",
+        "streamingInfo": "No",
+        "aboutYourself": "I am a calm and competitive Minecraft player who likes team strategy.",
+        "eventGoals": "Create good story moments and support my crew.",
+        "pastEventExperience": "I played in two lore-heavy SMP events with voice roleplay.",
+        "characterDescription": "A daring quartermaster focused on naval scouting and trade routes.",
+        "failureStory": "I once overcommitted in a PvP tournament and lost resources; I regrouped and adapted tactics.",
+        "scenarioPiratesCornerYou": "I negotiate first, protect my team, and avoid pointless escalation while roleplaying the scene.",
+        "scenarioStrandedSailors": "I would share food and build trust for future diplomacy, unless my faction orders otherwise."
+      },
+      "createdAt": "2026-04-03T01:20:09.300Z",
+      "updatedAt": "2026-04-03T01:20:09.300Z",
+      "reviewedBy": null,
+      "reviewedAt": null
+    }
+  ],
+  "auditLog": [
+    {
+      "id": "1774908900316-tzb1mv",
+      "at": "2026-03-30T22:15:00.316Z",
+      "action": "accepted",
+      "applicationId": 1,
+      "minecraftUsername": "e",
+      "actorId": "local-manager-admin",
+      "actorAlias": "Manager QA",
+      "reason": "Strong average score and clear responses"
+    },
+    {
+      "id": "1774908909427-f3zhcu",
+      "at": "2026-03-30T22:15:09.427Z",
+      "action": "deleted",
+      "applicationId": 1,
+      "minecraftUsername": "e",
+      "actorId": "local-manager-admin",
+      "actorAlias": "Manager QA",
+      "reason": "Duplicate test application"
+    },
+    {
+      "id": "1775004847448-6gcqk7",
+      "at": "2026-04-01T00:54:07.448Z",
+      "action": "deleted",
+      "applicationId": 5,
+      "minecraftUsername": "TestUser2327",
+      "actorId": "local-manager-admin",
+      "actorAlias": "x",
+      "reason": "c"
+    },
+    {
+      "id": "1775004885858-0p5lre",
+      "at": "2026-04-01T00:54:45.858Z",
+      "action": "deleted",
+      "applicationId": 7,
+      "minecraftUsername": "TestUser1023",
+      "actorId": "local-manager-admin",
+      "actorAlias": "d",
+      "reason": "d"
+    },
+    {
+      "id": "1775005399218-u7fpik",
+      "at": "2026-04-01T01:03:19.218Z",
+      "action": "accepted",
+      "applicationId": 6,
+      "minecraftUsername": "TestUser5135",
+      "actorId": "local-manager-admin",
+      "actorAlias": "weds",
+      "reason": "csda"
+    },
+    {
+      "id": "1775005509681-4sz049",
+      "at": "2026-04-01T01:05:09.681Z",
+      "action": "accepted",
+      "applicationId": 6,
+      "minecraftUsername": "TestUser5135",
+      "actorId": "local-manager-admin",
+      "actorAlias": "sdszc",
+      "reason": "zxx"
+    },
+    {
+      "id": "1775005588524-yejcel",
+      "at": "2026-04-01T01:06:28.524Z",
+      "action": "accepted",
+      "applicationId": 8,
+      "minecraftUsername": "TestUser1830",
+      "actorId": "local-manager-admin",
+      "actorAlias": "sdcdds",
+      "reason": "sdcscdcds"
+    },
+    {
+      "id": "1775175198132-6e24yk",
+      "at": "2026-04-03T00:13:18.132Z",
+      "action": "deleted",
+      "applicationId": 6,
+      "minecraftUsername": "TestUser5135",
+      "actorId": "local-manager-admin",
+      "actorAlias": "ew",
+      "reason": "e"
+    },
+    {
+      "id": "1775175203970-ypbeq3",
+      "at": "2026-04-03T00:13:23.970Z",
+      "action": "deleted",
+      "applicationId": 8,
+      "minecraftUsername": "TestUser1830",
+      "actorId": "local-manager-admin",
+      "actorAlias": "e",
+      "reason": "e"
+    },
+    {
+      "id": "1775175213757-kuns4h",
+      "at": "2026-04-03T00:13:33.757Z",
+      "action": "deleted",
+      "applicationId": 10,
+      "minecraftUsername": "TestUser7897",
+      "actorId": "local-manager-admin",
+      "actorAlias": "e",
+      "reason": "e"
+    },
+    {
+      "id": "1775175220102-va7i5p",
+      "at": "2026-04-03T00:13:40.102Z",
+      "action": "deleted",
+      "applicationId": 12,
+      "minecraftUsername": "TestUser1711",
+      "actorId": "local-manager-admin",
+      "actorAlias": "ee",
+      "reason": "e"
+    },
+    {
+      "id": "1775175231523-ddmb0h",
+      "at": "2026-04-03T00:13:51.523Z",
+      "action": "deleted",
+      "applicationId": 9,
+      "minecraftUsername": "TestUser1837",
+      "actorId": "local-manager-admin",
+      "actorAlias": "ee",
+      "reason": "e"
+    },
+    {
+      "id": "1775175236266-j94m67",
+      "at": "2026-04-03T00:13:56.266Z",
+      "action": "deleted",
+      "applicationId": 11,
+      "minecraftUsername": "TestUser9223",
+      "actorId": "local-manager-admin",
+      "actorAlias": "e",
+      "reason": "e"
+    },
+    {
+      "id": "1775175241905-x4s260",
+      "at": "2026-04-03T00:14:01.905Z",
+      "action": "deleted",
+      "applicationId": 13,
+      "minecraftUsername": "TestUser1714",
+      "actorId": "local-manager-admin",
+      "actorAlias": "e",
+      "reason": "e"
+    },
+    {
+      "id": "1775175247300-astx03",
+      "at": "2026-04-03T00:14:07.300Z",
+      "action": "deleted",
+      "applicationId": 14,
+      "minecraftUsername": "TestUser8273",
+      "actorId": "local-manager-admin",
+      "actorAlias": "e",
+      "reason": "e"
+    },
+    {
+      "id": "1775175928218-6bznrn",
+      "at": "2026-04-03T00:25:28.218Z",
+      "action": "accepted",
+      "applicationId": 5,
+      "minecraftUsername": "TestUser9484",
+      "actorId": "local-manager-admin",
+      "actorAlias": "sds",
+      "reason": "cdscsd"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manager Event Logs</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Signed in as <%= user ? (user.globalName || user.username) : "Unknown" %></p>
+          <h1>Manager Event Logs</h1>
+        </div>
+        <div class="topbar-actions">
+          <a href="/archives" class="button button-ghost">Archives</a>
+          <a href="/dashboard" class="button button-ghost">Back to Dashboard</a>
+          <form method="post" action="/logout">
+            <button type="submit" class="button button-ghost">Log out</button>
+          </form>
+        </div>
+      </header>
+
+      <% if (notice) { %>
+      <section class="notice success"><%= notice %></section>
+      <% } %>
+
+      <% if (error) { %>
+      <section class="notice error"><%= error %></section>
+      <% } %>
+
+      <section class="panel">
+        <h2>Manager Log Area</h2>
+        <p class="panel-subtitle">This remembers all accepted, denied, and deleted actions with who performed them and why.</p>
+
+        <% if (!managerLogs || !managerLogs.length) { %>
+        <p>No manager log entries yet.</p>
+        <% } %>
+
+        <div class="manager-log-list">
+          <% (managerLogs || []).forEach((log) => { %>
+          <article class="manager-log-item">
+            <p><strong>Action:</strong> <%= log.action.toUpperCase() %></p>
+            <p><strong>Application:</strong> #<%= log.applicationId %></p>
+            <p><strong>IGN:</strong> <%= log.minecraftUsername %></p>
+            <p><strong>By Account:</strong> <%= log.actorName %></p>
+            <p><strong>By Alias:</strong> <%= log.actorAlias || "Not recorded" %></p>
+            <p><strong>Why:</strong> <%= log.reason || "Not recorded" %></p>
+            <p><strong>When:</strong> <%= new Date(log.at).toLocaleString() %></p>
+          </article>
+          <% }); %>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Archived Applications</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Manager Tools</p>
+          <h1>Archived Applications</h1>
+        </div>
+        <div class="topbar-actions">
+          <a class="button button-ghost" href="/dashboard">Back to Dashboard</a>
+        </div>
+      </header>
+
+      <% if (!archives.length) { %>
+      <section class="panel"><p>No archived applications.</p></section>
+      <% } else { %>
+      <section class="panel">
+        <div class="application-grid">
+          <% archives.forEach((entry) => { %>
+          <article class="application-card">
+            <header>
+              <h3>#<%= entry.id %> - <%= entry.answers.ign || "Unknown" %></h3>
+              <span class="status status-<%= entry.status %>"><%= entry.status %></span>
+            </header>
+            <p><strong>Archived At:</strong> <%= entry.archivedAt ? new Date(entry.archivedAt).toLocaleString() : "N/A" %></p>
+            <p><strong>Average Score:</strong> <%= entry.averageScore !== null ? entry.averageScore + "/5" : "N/A" %></p>
+            <p><strong>Score Submissions:</strong> <%= entry.scoreSubmissionCount || 0 %></p>
+            <a class="button button-ghost" href="/applications/<%= entry.id %>/download">Download</a>
+          </article>
+          <% }); %>
+        </div>
+      </section>
+      <% } %>
+    </main>
+  </body>
+</html>

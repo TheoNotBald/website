@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Login</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page page-login">
+      <section class="hero">
+        <p class="eyebrow"><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Portal</p>
+        <h1><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Username Login</h1>
+        <p class="subtitle">Enter your credentials to continue.</p>
+      </section>
+
+      <section class="panel compact-panel">
+        <% if (error) { %>
+        <section class="notice error"><%= error %></section>
+        <% } %>
+
+        <form method="post" action="/login/<%= portal %>" class="application-form auth-form">
+          <label>
+            <span>Username</span>
+            <input name="username" required autocomplete="username" />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input type="password" name="password" required autocomplete="current-password" />
+          </label>
+
+          <button type="submit" class="button">Sign In</button>
+        </form>
+
+        <a class="link-back" href="/">Back to role selection</a>
+      </section>
+    </main>
+  </body>
+</html>
