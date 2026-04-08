@@ -201,14 +201,35 @@ body {
 
 .page {
   width: min(1200px, 100% - 2rem);
+  margin: 2rem auto;
+  display: grid;
   align-items: center;
   gap: 1rem;
 }
 
+.topbar,
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
 
-    .auth-login-shell {
-      width: min(96vw, 760px);
-    }
+.topbar {
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.welcome-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
 .topbar h1,
 .panel h1,
 .panel h2,
@@ -747,6 +768,10 @@ textarea {
 @media (max-width: 900px) {
   .review-layout {
     grid-template-columns: 1fr;
+  }
+
+  .auth-login-shell {
+    width: min(96vw, 760px);
   }
 }
 

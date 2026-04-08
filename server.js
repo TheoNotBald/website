@@ -507,15 +507,16 @@ app.get(
   (req, res) => {
     const statePortal = (req.query.state || "").toString();
     const sessionPortal = (req.session.requestedPortal || "").toString();
-    const requestedPortal = ["applicant", "staff", "manager"].includes(statePortal)
+    const validPortals = ["applicant", "staff", "manager"];
+    const requestedPortal = validPortals.includes(statePortal)
       ? statePortal
-      : (["applicant", "staff", "manager"].includes(sessionPortal) ? sessionPortal : "applicant");
+      : (validPortals.includes(sessionPortal) ? sessionPortal : null);
     const userId = req.user.id;
 
     const isManager = managerIds().has(userId);
     const isStaff = staffIds().has(userId) || isManager;
 
-    console.log(`[DEBUG] Callback: userId=${userId}, statePortal=${statePortal || "(none)"}, sessionPortal=${sessionPortal || "(none)"}, requestedPortal=${requestedPortal}, isStaff=${isStaff}, isManager=${isManager}`);
+    console.log(`[DEBUG] Callback: userId=${userId}, statePortal=${statePortal || "(none)"}, sessionPortal=${sessionPortal || "(none)"}, requestedPortal=${requestedPortal || "(none)"}, isStaff=${isStaff}, isManager=${isManager}`);
 
     if (requestedPortal === "manager" && !isManager) {
       req.logout(() => {
@@ -531,12 +532,14 @@ app.get(
       return;
     }
 
-    // If OAuth round-trip drops portal context, route by role so staff/manager never fall back to applicant.
+    // Honor explicit requested portal. Only infer by role when context is truly missing.
     let finalPortal = requestedPortal;
-    if (finalPortal === "applicant" && isManager) {
+    if (!finalPortal && isManager) {
       finalPortal = "manager";
-    } else if (finalPortal === "applicant" && isStaff) {
+    } else if (!finalPortal && isStaff) {
       finalPortal = "staff";
+    } else if (!finalPortal) {
+      finalPortal = "applicant";
     }
 
     req.session.portal = finalPortal;
