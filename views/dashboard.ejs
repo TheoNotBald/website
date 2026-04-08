@@ -54,8 +54,8 @@
           <input type="hidden" name="currentStep" value="1" />
           <h3>Page 1</h3>
           <label><span>IGN:</span><input name="ign" required value="<%= draft.ign || "" %>" class="<%= flaggedFields.has("ign") ? "field-flagged" : "" %>" /></label>
-          <label><span>Discord User:</span><input name="discordUser" required value="<%= draft.discordUser || "" %>" class="<%= flaggedFields.has("discordUser") ? "field-flagged" : "" %>" /></label>
-          <label><span>Discord UID:</span><input name="discordUid" required value="<%= draft.discordUid || "" %>" class="<%= flaggedFields.has("discordUid") ? "field-flagged" : "" %>" /></label>
+          <label><span>Discord User:</span><input name="discordUser" required value="<%= draft.discordUser || (user ? (user.globalName || user.username || "") : "") %>" class="<%= flaggedFields.has("discordUser") ? "field-flagged" : "" %>" /></label>
+          <label><span>Discord UID:</span><input name="discordUid" required value="<%= draft.discordUid || (user ? user.id : "") %>" class="<%= flaggedFields.has("discordUid") ? "field-flagged" : "" %>" /></label>
           <label><span>Age:</span><input type="number" min="13" max="120" name="age" required value="<%= draft.age || "" %>" class="<%= flaggedFields.has("age") ? "field-flagged" : "" %>" /></label>
           <label><span>Timezone:</span><input name="timezone" required value="<%= draft.timezone || "" %>" class="<%= flaggedFields.has("timezone") ? "field-flagged" : "" %>" /></label>
           <div class="decision-actions">

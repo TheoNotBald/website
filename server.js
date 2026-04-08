@@ -1012,7 +1012,10 @@ function submitApplicationPayload(req, res, payload, options = {}) {
 
   if (missing.length) {
     req.session.applicationDraft = payload;
-    return res.redirect("/dashboard?error=Please+complete+all+fields+before+submitting.");
+    const missingLabels = missing.map((key) => APPLICATION_FIELD_LABELS[key] || key);
+    return res.redirect(
+      `/dashboard?error=${encodeURIComponent(`Please complete these required fields: ${missingLabels.join(", ")}.`)}`
+    );
   }
 
   if (payload.age < MINIMUM_AGE) {
