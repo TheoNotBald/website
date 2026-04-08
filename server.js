@@ -105,7 +105,20 @@ function readStore() {
 }
 
 function writeStore(data) {
-  fs.writeFileSync(storePath, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(storePath, JSON.stringify(data, null, 2));
+  } catch (error) {
+    const code = error && error.code ? error.code : "UNKNOWN";
+    const isReadOnlyFs = ["EROFS", "EPERM", "EACCES"].includes(code);
+
+    if (isReadOnlyFs) {
+      // Vercel serverless runtime does not allow writing to deployed source files.
+      console.warn(`[WARN] Skipping writeStore on read-only filesystem (${code}).`);
+      return;
+    }
+
+    throw error;
+  }
 }
 
 function parseIdList(value) {
