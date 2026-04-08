@@ -806,20 +806,8 @@ app.get("/applications/:id/review", ensureSignedIn, ensurePortal("staff", "manag
 app.post("/applications/:id/score", ensureSignedIn, ensurePortal("staff"), (req, res) => {
   const data = readStore();
   const id = Number(req.params.id);
-  const reviewerAlias = (req.body.reviewerAlias || "").trim();
+  const reviewerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Staff Reviewer";
   const searchQuery = (req.body.searchQuery || "").toString().trim();
-
-  if (!reviewerAlias) {
-    return res.redirect(
-      `/applications/${id}/review?search=${encodeURIComponent(searchQuery)}&error=Reviewer+name+is+required.`
-    );
-  }
-
-  if (hasAnyProfanity([reviewerAlias])) {
-    return res.redirect(
-      `/applications/${id}/review?search=${encodeURIComponent(searchQuery)}&error=Reviewer+name+contains+blocked+language.`
-    );
-  }
 
   const { scores, invalidFields } = parseScorePayload(req.body);
   if (invalidFields.length) {
@@ -1061,24 +1049,28 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
   const data = readStore();
   const id = Number(req.params.id);
   const decision = (req.body.decision || "").toString();
-  const reviewerAlias = (req.body.reviewerAlias || "").trim();
+  const reviewerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Manager";
   const decisionReason = (req.body.decisionReason || "").trim();
 
   if (!["accepted", "denied"].includes(decision)) {
     return res.redirect("/dashboard?error=Invalid+decision+value.");
   }
 
-  if (!reviewerAlias || !decisionReason) {
-    return res.redirect("/dashboard?error=Reviewer+name+and+decision+explanation+are+required.");
+  if (!decisionReason) {
+    return res.redirect("/dashboard?error=Decision+explanation+is+required.");
   }
 
-  if (hasAnyProfanity([reviewerAlias, decisionReason])) {
+  if (hasAnyProfanity([decisionReason])) {
     return res.redirect("/dashboard?error=Decision+contains+blocked+language.+Please+remove+profanity.");
   }
 
   const application = data.applications.find((item) => item.id === id);
   if (!application) {
     return res.redirect("/dashboard?error=Application+not+found.");
+  }
+
+  if (["accepted", "denied"].includes(application.status)) {
+    return res.redirect("/dashboard?error=This+application+is+already+finalized.+Use+Relook+Application+to+reopen+it.");
   }
 
   const hasStaffScores = (application.questionScores || []).some(
@@ -1131,6 +1123,45 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
       `/dashboard?error=Application+${id}+${decision},+but+DM+failed:+${encodeURIComponent(error.message)}`
     );
   }
+});
+
+app.post("/applications/:id/relook", ensureSignedIn, ensurePortal("manager"), (req, res) => {
+  const data = readStore();
+  const id = Number(req.params.id);
+  const relookReason = (req.body.relookReason || "").trim();
+  const managerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Manager";
+
+  if (relookReason && hasAnyProfanity([relookReason])) {
+    return res.redirect("/dashboard?error=Relook+reason+contains+blocked+language.+Please+remove+profanity.");
+  }
+
+  const application = data.applications.find((item) => item.id === id);
+  if (!application) {
+    return res.redirect("/dashboard?error=Application+not+found.");
+  }
+
+  if (!["accepted", "denied"].includes(application.status)) {
+    return res.redirect("/dashboard?error=Only+accepted+or+denied+applications+can+be+reopened.");
+  }
+
+  const now = new Date().toISOString();
+  application.status = "under_review";
+  application.updatedAt = now;
+  application.reopenedAt = now;
+  application.reopenedBy = req.user.id;
+  application.reopenedByAlias = managerAlias;
+  application.reopenReason = relookReason || null;
+  application.reviewHistory = application.reviewHistory || [];
+  application.reviewHistory.push({
+    decision: "reopened",
+    reviewerId: req.user.id,
+    reviewerAlias: managerAlias,
+    decisionReason: relookReason || "",
+    at: now
+  });
+
+  writeStore(data);
+  return res.redirect(`/dashboard?notice=Application+${id}+reopened+for+relook.`);
 });
 
 app.post("/applications/:id/under-review", ensureSignedIn, ensurePortal("staff"), async (req, res) => {
@@ -1230,18 +1261,18 @@ app.post("/applications/:id/delete", ensureSignedIn, ensurePortal("manager"), (r
   const data = readStore();
   const id = Number(req.params.id);
   const confirmDelete = (req.body.confirmDelete || "").toString();
-  const managerAlias = (req.body.managerAlias || "").trim();
+  const managerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Manager";
   const deleteReason = (req.body.deleteReason || "").trim();
 
   if (confirmDelete !== "yes") {
     return res.redirect("/dashboard?error=Delete+confirmation+is+required.");
   }
 
-  if (!managerAlias || !deleteReason) {
-    return res.redirect("/dashboard?error=Manager+name+and+delete+reason+are+required.");
+  if (!deleteReason) {
+    return res.redirect("/dashboard?error=Delete+reason+is+required.");
   }
 
-  if (hasAnyProfanity([managerAlias, deleteReason])) {
+  if (hasAnyProfanity([deleteReason])) {
     return res.redirect("/dashboard?error=Delete+details+contain+blocked+language.+Please+remove+profanity.");
   }
 

@@ -209,8 +209,6 @@
 
             <% if (portal === "manager") { %>
             <p class="qa-item"><strong>What is your in-game name (IGN)?</strong><span><%= entry.answers.ign %></span></p>
-            <p class="qa-item"><strong>What is your Discord user?</strong><span><%= entry.answers.discordUser %></span></p>
-            <p class="qa-item"><strong>What is your Discord UID?</strong><span><%= entry.answers.discordUid %></span></p>
             <p class="qa-item"><strong>How old are you?</strong><span><%= entry.answers.age %></span></p>
             <p class="qa-item"><strong>What timezone are you in?</strong><span><%= entry.answers.timezone %></span></p>
             <p class="qa-item"><strong>What side would you like to be on - pirates or sailors?</strong><span><%= entry.answers.preferredSide %></span></p>
@@ -359,18 +357,25 @@
               <a class="button button-ghost" href="/applications/<%= entry.id %>/download">Download</a>
             </div>
 
+            <% if (["accepted", "denied"].includes(entry.status)) { %>
+            <form method="post" action="/applications/<%= entry.id %>/relook" class="decision-form">
+              <label><span>Optional reason for reopening</span><textarea name="relookReason" placeholder="Add context for reopening this application..."></textarea></label>
+              <div class="decision-actions">
+                <button type="submit" class="button button-warning">Relook Application</button>
+              </div>
+            </form>
+            <% } else { %>
             <form method="post" action="/applications/<%= entry.id %>/decision" class="decision-form">
-              <label><span>Manager Name or Discord User (required)</span><input name="reviewerAlias" required /></label>
               <label><span>Required Explanation</span><textarea name="decisionReason" required></textarea></label>
               <div class="decision-actions">
                 <button type="submit" class="button" name="decision" value="accepted">Accept + DM</button>
                 <button type="submit" class="button button-danger" name="decision" value="denied">Deny + DM</button>
               </div>
             </form>
+            <% } %>
 
             <form method="post" action="/applications/<%= entry.id %>/delete" class="danger-form" onsubmit="return confirm('Warning: This will permanently delete this application. This cannot be undone. Continue?');">
               <input type="hidden" name="confirmDelete" value="yes" />
-              <label><span>Manager Name or Discord User (required)</span><input name="managerAlias" required /></label>
               <label><span>Delete Reason (required)</span><textarea name="deleteReason" required></textarea></label>
               <p class="warning-text">Warning: delete permanently removes the application record.</p>
               <button type="submit" class="button button-danger">Delete Application Permanently</button>
