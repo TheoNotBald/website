@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Starfall Civilisation Event Applications Website
 
 Local web app with:
@@ -52,3 +53,7 @@ Example callback URL:
 ```text
 http://YOUR_PUBLIC_IP/auth/discord/callback
 ```
+=======
+# website
+s
+>>>>>>> a211e12ab1ab890f7e082afec97008402e1487ac
