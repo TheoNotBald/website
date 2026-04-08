@@ -583,11 +583,15 @@ textarea {
   min-height: 100vh;
   display: grid;
   place-items: center;
+  justify-items: center;
+  align-items: center;
   margin: 0;
-  padding: 1.2rem 0;
+  padding: clamp(1rem, 2.5vw, 2rem);
 }
 
 .auth-glass {
+  width: min(92vw, clamp(380px, 44vw, 760px));
+  padding: clamp(1rem, 2.3vw, 2rem);
   background: linear-gradient(160deg, rgba(248, 240, 255, 0.78), rgba(236, 223, 252, 0.68));
   border: 1px solid rgba(248, 239, 255, 0.58);
   backdrop-filter: blur(14px);
@@ -596,6 +600,11 @@ textarea {
 
 .auth-glass h1 {
   margin-top: 0.2rem;
+  font-size: clamp(2rem, 3.2vw, 3rem);
+}
+
+.auth-glass .panel-subtitle {
+  font-size: clamp(1rem, 1.15vw, 1.2rem);
 }
 
 .auth-actions {
@@ -606,7 +615,8 @@ textarea {
 }
 
 .auth-actions .button {
-  min-width: 180px;
+  min-width: 0;
+  flex: 1 1 200px;
   text-align: center;
 }
 
@@ -743,6 +753,10 @@ textarea {
 
   .auth-page {
     margin: 0;
+  }
+
+  .auth-glass {
+    width: min(96vw, 560px);
   }
 
   .auth-actions .button {
