@@ -68,6 +68,11 @@
         <form class="application-form" method="post" action="/applications/draft-step" autocomplete="off">
           <input type="hidden" name="currentStep" value="2" />
           <h3>Page 2</h3>
+          <input type="hidden" name="ign" value="<%= draft.ign || "" %>" />
+          <input type="hidden" name="discordUser" value="<%= draft.discordUser || (user ? (user.globalName || user.username || "") : "") %>" />
+          <input type="hidden" name="discordUid" value="<%= draft.discordUid || (user ? user.id : "") %>" />
+          <input type="hidden" name="age" value="<%= draft.age || "" %>" />
+          <input type="hidden" name="timezone" value="<%= draft.timezone || "" %>" />
           <label>
             <span>What side would you like to be on - pirates or sailors?</span>
             <select name="preferredSide" required class="<%= flaggedFields.has("preferredSide") ? "field-flagged" : "" %>">
@@ -96,6 +101,14 @@
         <form class="application-form" method="post" action="/applications/draft-step" autocomplete="off">
           <input type="hidden" name="currentStep" value="3" />
           <h3>Page 3</h3>
+          <input type="hidden" name="ign" value="<%= draft.ign || "" %>" />
+          <input type="hidden" name="discordUser" value="<%= draft.discordUser || (user ? (user.globalName || user.username || "") : "") %>" />
+          <input type="hidden" name="discordUid" value="<%= draft.discordUid || (user ? user.id : "") %>" />
+          <input type="hidden" name="age" value="<%= draft.age || "" %>" />
+          <input type="hidden" name="timezone" value="<%= draft.timezone || "" %>" />
+          <input type="hidden" name="preferredSide" value="<%= draft.preferredSide || "" %>" />
+          <input type="hidden" name="hasMicrophone" value="<%= draft.hasMicrophone || "" %>" />
+          <input type="hidden" name="streamingInfo" value="<%= draft.streamingInfo || "" %>" />
           <label><span>Without telling us who you are, tell us a little bit about yourself.</span><textarea name="aboutYourself" required class="<%= flaggedFields.has("aboutYourself") ? "field-flagged" : "" %>"><%= draft.aboutYourself || "" %></textarea></label>
           <label><span>What are your goals for this event?</span><textarea name="eventGoals" required class="<%= flaggedFields.has("eventGoals") ? "field-flagged" : "" %>"><%= draft.eventGoals || "" %></textarea></label>
           <label><span>Describe your past experience with Minecraft events, roleplay events, and story-telling. Please be specific with your answers.</span><textarea name="pastEventExperience" required class="<%= flaggedFields.has("pastEventExperience") ? "field-flagged" : "" %>"><%= draft.pastEventExperience || "" %></textarea></label>
@@ -110,6 +123,19 @@
 
         <% if (formPage === 4) { %>
         <form class="application-form" method="post" action="/applications/submit-step" autocomplete="off">
+          <input type="hidden" name="ign" value="<%= draft.ign || "" %>" />
+          <input type="hidden" name="discordUser" value="<%= draft.discordUser || (user ? (user.globalName || user.username || "") : "") %>" />
+          <input type="hidden" name="discordUid" value="<%= draft.discordUid || (user ? user.id : "") %>" />
+          <input type="hidden" name="age" value="<%= draft.age || "" %>" />
+          <input type="hidden" name="timezone" value="<%= draft.timezone || "" %>" />
+          <input type="hidden" name="preferredSide" value="<%= draft.preferredSide || "" %>" />
+          <input type="hidden" name="hasMicrophone" value="<%= draft.hasMicrophone || "" %>" />
+          <input type="hidden" name="streamingInfo" value="<%= draft.streamingInfo || "" %>" />
+          <input type="hidden" name="aboutYourself" value="<%= draft.aboutYourself || "" %>" />
+          <input type="hidden" name="eventGoals" value="<%= draft.eventGoals || "" %>" />
+          <input type="hidden" name="pastEventExperience" value="<%= draft.pastEventExperience || "" %>" />
+          <input type="hidden" name="characterDescription" value="<%= draft.characterDescription || "" %>" />
+          <input type="hidden" name="failureStory" value="<%= draft.failureStory || "" %>" />
           <h3>Page 4</h3>
           <label><span>Three pirates corner you, demanding you hand over your gear and your valuables. You don't have much on you, but you have a few diamonds that you found in a chest nearby. What do you do?</span><textarea name="scenarioPiratesCornerYou" required class="<%= flaggedFields.has("scenarioPiratesCornerYou") ? "field-flagged" : "" %>"><%= draft.scenarioPiratesCornerYou || "" %></textarea></label>
           <label><span>You come across a group of sailors that have been stranded on an island with very little food. They are hungry, and you and your team has an abundance of bread and cooked steak. What do you do?</span><textarea name="scenarioStrandedSailors" required class="<%= flaggedFields.has("scenarioStrandedSailors") ? "field-flagged" : "" %>"><%= draft.scenarioStrandedSailors || "" %></textarea></label>
