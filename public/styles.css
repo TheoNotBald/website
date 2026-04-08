@@ -156,54 +156,59 @@ body {
   filter: brightness(1.08);
 }
 
+.welcome-secondary {
+  text-decoration: none;
+  color: #2b2150;
+  font-weight: 800;
+  border-radius: 12px;
+  min-width: 180px;
+  padding: 0.9rem 1.25rem;
+  background: rgba(245, 236, 255, 0.9);
+  border: 1px solid rgba(226, 200, 255, 0.7);
+  box-shadow: 0 8px 22px rgba(31, 18, 63, 0.2);
+}
+
+.welcome-secondary:hover {
+  filter: brightness(1.04);
+}
+
+.auth-login-shell {
+  width: min(95vw, clamp(700px, 68vw, 1020px));
+  padding: clamp(1.5rem, 3vw, 2.8rem);
+  border-radius: 26px;
+  background: linear-gradient(160deg, rgba(245, 236, 255, 0.42), rgba(225, 205, 255, 0.24));
+  border: 1px solid rgba(236, 220, 255, 0.52);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 30px 65px rgba(25, 12, 58, 0.42), 0 0 0 1px rgba(255, 255, 255, 0.22) inset;
+}
+
+.auth-login-shell h1 {
+  font-size: clamp(2.35rem, 5vw, 4.7rem);
+}
+
+.auth-login-shell .welcome-tagline {
+  font-size: clamp(1rem, 1.7vw, 1.4rem);
+  margin-bottom: 1.45rem;
+}
+
+.auth-login-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
 
 .page {
   width: min(1200px, 100% - 2rem);
-  margin: 2rem auto;
-  display: grid;
-  gap: 1rem;
-}
-
-.page-login .hero {
-  color: #ffffff;
-  padding: 0.4rem 0.2rem;
-}
-
-.page-login .hero .eyebrow,
-.page-login .hero h1,
-.page-login .hero .subtitle {
-  color: #ffffff;
-}
-
-.page-login .hero .subtitle {
-  margin: 0.65rem 0 0;
-  font-size: 1.05rem;
-  opacity: 0.95;
-}
-
-.topbar,
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-}
-
-.topbar {
-  padding: 1rem 1.25rem;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 1rem;
 }
 
-.welcome-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
 
+    .auth-login-shell {
+      width: min(96vw, 760px);
+    }
 .topbar h1,
 .panel h1,
 .panel h2,
@@ -751,15 +756,17 @@ textarea {
     margin: 1rem auto;
   }
 
-  .auth-page {
-    margin: 0;
-  }
-
-  .auth-glass {
+  .auth-login-shell {
     width: min(96vw, 560px);
+    padding: 1.15rem;
   }
 
-  .auth-actions .button {
+  .auth-login-shell h1 {
+    font-size: clamp(1.95rem, 8.4vw, 2.6rem);
+  }
+
+  .auth-login-actions .welcome-primary,
+  .auth-login-actions .welcome-secondary {
     width: 100%;
     min-width: 0;
   }

@@ -6,12 +6,12 @@
     <title><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Login</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
-    <main class="page auth-page">
-      <section class="panel narrow auth-glass">
-        <p class="eyebrow">Starfall Event Portal</p>
+  <body class="welcome-page-body">
+    <main class="welcome-page">
+      <section class="welcome-hero auth-glass auth-login-shell">
+        <p class="welcome-eyebrow">Starfall Event Portal</p>
         <h1><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Access</h1>
-        <p class="panel-subtitle">Sign in with your Discord account to continue.</p>
+        <p class="welcome-tagline">Sign in with your Discord account to continue.</p>
 
         <% if (error) { %>
         <section class="notice error" style="margin: 0.8rem 0 0.95rem;">
@@ -19,9 +19,9 @@
         </section>
         <% } %>
 
-        <div class="auth-actions">
-          <a href="/auth/discord?portal=<%= portal %>" class="button">Continue with Discord</a>
-          <a href="/" class="button button-ghost">Back</a>
+        <div class="auth-login-actions">
+          <a href="/auth/discord?portal=<%= portal %>" class="welcome-primary">Continue with Discord</a>
+          <a href="/" class="welcome-secondary">Back</a>
         </div>
       </section>
     </main>
