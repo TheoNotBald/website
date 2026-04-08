@@ -7,12 +7,16 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main class="page">
-      <section class="panel narrow">
+    <main class="page auth-page">
+      <section class="panel narrow auth-glass">
+        <p class="eyebrow">Starfall Event Portal</p>
         <h1>Applicant Login</h1>
         <p class="panel-subtitle">Sign in with Discord to submit your application.</p>
-        <a class="button" href="/auth/discord">Continue with Discord</a>
-        <a class="button button-ghost" href="/">Back</a>
+
+        <div class="auth-actions">
+          <a class="button" href="/auth/discord?portal=applicant">Continue with Discord</a>
+          <a class="button button-ghost" href="/">Back</a>
+        </div>
       </section>
     </main>
   </body>

@@ -6,24 +6,22 @@
     <title><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Login</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body class="welcome-page-body">
-    <main class="welcome-page">
-      <section class="welcome-hero">
-        <p class="welcome-eyebrow">Starfall Event Portal</p>
+  <body>
+    <main class="page auth-page">
+      <section class="panel narrow auth-glass">
+        <p class="eyebrow">Starfall Event Portal</p>
         <h1><%= portal.charAt(0).toUpperCase() + portal.slice(1) %> Access</h1>
-        <p class="welcome-tagline">Sign in with your Discord account to continue.</p>
+        <p class="panel-subtitle">Sign in with your Discord account to continue.</p>
 
         <% if (error) { %>
-        <section class="notice error" style="margin: 2rem 0;">
+        <section class="notice error" style="margin: 0.8rem 0 0.95rem;">
           <%= error %>
         </section>
         <% } %>
 
-        <div class="welcome-cta">
-          <a href="/auth/discord?portal=<%= portal %>" class="welcome-primary">Continue with Discord</a>
-        </div>
-        <div style="text-align: center; margin-top: 1rem;">
-          <a href="/" style="color: inherit; text-decoration: underline;">Back to role selection</a>
+        <div class="auth-actions">
+          <a href="/auth/discord?portal=<%= portal %>" class="button">Continue with Discord</a>
+          <a href="/" class="button button-ghost">Back</a>
         </div>
       </section>
     </main>

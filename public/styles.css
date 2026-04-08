@@ -579,6 +579,37 @@ textarea {
   margin: 0 auto;
 }
 
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 1.2rem 0;
+}
+
+.auth-glass {
+  background: linear-gradient(160deg, rgba(248, 240, 255, 0.78), rgba(236, 223, 252, 0.68));
+  border: 1px solid rgba(248, 239, 255, 0.58);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 50px rgba(27, 13, 57, 0.36), 0 0 0 1px rgba(255, 255, 255, 0.26) inset;
+}
+
+.auth-glass h1 {
+  margin-top: 0.2rem;
+}
+
+.auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.auth-actions .button {
+  min-width: 180px;
+  text-align: center;
+}
+
 .review-layout {
   display: grid;
   gap: 1rem;
@@ -708,6 +739,15 @@ textarea {
   .page {
     width: min(1200px, 100% - 1rem);
     margin: 1rem auto;
+  }
+
+  .auth-page {
+    margin: 0;
+  }
+
+  .auth-actions .button {
+    width: 100%;
+    min-width: 0;
   }
 
   .topbar {
