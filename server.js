@@ -18,6 +18,10 @@ const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const OAUTH_READY = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
+
+// Log staff/manager IDs at startup
+console.log(`[STARTUP] STAFF_DISCORD_IDS=${process.env.STAFF_DISCORD_IDS || "(not set)"}`);
+console.log(`[STARTUP] MANAGER_DISCORD_IDS=${process.env.MANAGER_DISCORD_IDS || "(not set)"}`);
 const MINIMUM_AGE = 13;
 const RESUBMIT_LOCK_MS = 24 * 60 * 60 * 1000;
 const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
@@ -130,11 +134,19 @@ function getManagerLogs(data) {
 }
 
 function staffIds() {
-  return parseIdList(process.env.STAFF_DISCORD_IDS);
+  const ids = parseIdList(process.env.STAFF_DISCORD_IDS);
+  if (ids.size === 0) {
+    console.warn("[WARN] STAFF_DISCORD_IDS env var is empty or not set!");
+  }
+  return ids;
 }
 
 function managerIds() {
-  return parseIdList(process.env.MANAGER_DISCORD_IDS);
+  const ids = parseIdList(process.env.MANAGER_DISCORD_IDS);
+  if (ids.size === 0) {
+    console.warn("[WARN] MANAGER_DISCORD_IDS env var is empty or not set!");
+  }
+  return ids;
 }
 
 passport.serializeUser((user, done) => done(null, user));
@@ -474,11 +486,13 @@ app.get("/auth/discord", (req, res, next) => {
   }
 
   const portal = (req.query.portal || "applicant").toString();
+  console.log(`[DEBUG] /auth/discord: query.portal=${req.query.portal}, normalized portal=${portal}`);
   if (!["applicant", "staff", "manager"].includes(portal)) {
     return res.status(400).send("Invalid portal.");
   }
 
   req.session.requestedPortal = portal;
+  console.log(`[DEBUG] Set session.requestedPortal to: ${portal}`);
   passport.authenticate("discord")(req, res, next);
 });
 
