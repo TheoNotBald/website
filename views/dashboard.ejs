@@ -182,11 +182,6 @@
           <input name="search" placeholder="Search by IGN" value="<%= searchQuery || "" %>" />
           <button type="submit" class="button button-ghost">Search</button>
         </form>
-
-        <form method="post" action="/applications/delete-all" class="danger-form" onsubmit="return confirm('Warning: This will permanently delete ALL applications. This cannot be undone. Continue?');">
-          <label><span>Delete All Applications Password</span><input type="password" name="deleteAllPassword" required /></label>
-          <button type="submit" class="button button-danger">Delete All Applications</button>
-        </form>
         <% } %>
 
         <% const page = Number(currentPage || 1); %>
@@ -408,6 +403,18 @@
           </div>
         </div>
         <% } %>
+
+        <% if (portal === "manager") { %>
+        <div class="stealth-danger-wrap" data-stealth-wrap>
+          <button type="button" class="stealth-danger-toggle" data-stealth-toggle aria-expanded="false" aria-label="Reveal management actions"></button>
+          <div class="stealth-danger-panel" data-stealth-panel>
+            <form method="post" action="/applications/delete-all" class="danger-form stealth-danger-form" onsubmit="return confirm('Warning: This will permanently delete ALL applications. This cannot be undone. Continue?');">
+              <label><span>Delete All Applications Password</span><input type="password" name="deleteAllPassword" required /></label>
+              <button type="submit" class="button button-danger">Delete All Applications</button>
+            </form>
+          </div>
+        </div>
+        <% } %>
         <% } %>
       </section>
       <% } %>
@@ -444,6 +451,15 @@
           form.addEventListener("change", updateTotal);
           updateTotal();
         });
+
+        const stealthWrap = document.querySelector('[data-stealth-wrap]');
+        const stealthToggle = document.querySelector('[data-stealth-toggle]');
+        if (stealthWrap && stealthToggle) {
+          stealthToggle.addEventListener("click", () => {
+            const isOpen = stealthWrap.classList.toggle("is-open");
+            stealthToggle.setAttribute("aria-expanded", String(isOpen));
+          });
+        }
       })();
     </script>
   </body>

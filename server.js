@@ -460,15 +460,46 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+function inferPortalForUser(userId) {
+  if (!userId) {
+    return null;
+  }
+
+  const isManager = managerIds().has(userId);
+  if (isManager) {
+    return "manager";
+  }
+
+  const isStaff = staffIds().has(userId);
+  if (isStaff) {
+    return "staff";
+  }
+
+  return "applicant";
+}
+
 function ensureSignedIn(req, res, next) {
-  if (!req.isAuthenticated() || !req.session.portal) {
+  if (!req.isAuthenticated()) {
     return res.redirect("/");
   }
+
+  if (!req.session.portal) {
+    const inferredPortal = inferPortalForUser(req.user && req.user.id);
+    if (!inferredPortal) {
+      return res.redirect("/");
+    }
+    req.session.portal = inferredPortal;
+  }
+
   next();
 }
 
 function ensurePortal(...allowedPortals) {
   return (req, res, next) => {
+    if (!req.session.portal && req.user && req.user.id) {
+      req.session.portal = inferPortalForUser(req.user.id);
+    }
+
     if (!req.session.portal || !allowedPortals.includes(req.session.portal)) {
       return res.status(403).send("Access denied.");
     }

@@ -577,6 +577,47 @@ textarea {
   gap: 0.8rem;
 }
 
+.stealth-danger-wrap {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.stealth-danger-toggle {
+  height: 14px;
+  border: 1px solid rgba(160, 130, 205, 0.14);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(246, 238, 255, 0.7), rgba(246, 238, 255, 0.92));
+  opacity: 0.22;
+  cursor: pointer;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.stealth-danger-toggle:hover,
+.stealth-danger-wrap.is-open .stealth-danger-toggle {
+  opacity: 0.7;
+  transform: translateY(-1px);
+}
+
+.stealth-danger-panel {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: max-height 260ms ease, opacity 220ms ease, transform 220ms ease;
+}
+
+.stealth-danger-wrap.is-open .stealth-danger-panel {
+  max-height: 220px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stealth-danger-form {
+  margin-top: 0;
+  border-top: 1px dashed rgba(180, 35, 54, 0.45);
+}
+
 .manager-log-list {
   display: grid;
   gap: 0.9rem;
