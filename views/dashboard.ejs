@@ -226,7 +226,7 @@
 
             <div class="qa-item">
               <strong>Without telling us who you are, tell us a little bit about yourself.</strong>
-              <span><%= entry.answers.aboutYourself %></span>
+              <span><%= (entry.answers.aboutYourself || "").trim() || "No answer provided." %></span>
               <% if (portal === "staff") { %>
               <p class="inline-rating-label">Rate this answer</p>
               <div class="rating-circle-row">
@@ -239,7 +239,7 @@
 
             <div class="qa-item">
               <strong>What are your goals for this event?</strong>
-              <span><%= entry.answers.eventGoals %></span>
+              <span><%= (entry.answers.eventGoals || "").trim() || "No answer provided." %></span>
               <% if (portal === "staff") { %>
               <p class="inline-rating-label">Rate this answer</p>
               <div class="rating-circle-row">
@@ -252,7 +252,7 @@
 
             <div class="qa-item">
               <strong>Describe your past experience with Minecraft events, roleplay events, and story-telling. Please be specific with your answers.</strong>
-              <span><%= entry.answers.pastEventExperience %></span>
+              <span><%= (entry.answers.pastEventExperience || "").trim() || "No answer provided." %></span>
               <% if (portal === "staff") { %>
               <p class="inline-rating-label">Rate this answer</p>
               <div class="rating-circle-row">
@@ -265,7 +265,7 @@
 
             <div class="qa-item">
               <strong>Describe a character you may create for this event. Please be specific with your answers.</strong>
-              <span><%= entry.answers.characterDescription %></span>
+              <span><%= (entry.answers.characterDescription || "").trim() || "No answer provided." %></span>
               <% if (portal === "staff") { %>
               <p class="inline-rating-label">Rate this answer</p>
               <div class="rating-circle-row">
@@ -278,7 +278,7 @@
 
             <div class="qa-item">
               <strong>Tell us about a time that something went wrong for you - did you fail? How did you fail? What did you do when you failed?</strong>
-              <span><%= entry.answers.failureStory %></span>
+              <span><%= (entry.answers.failureStory || "").trim() || "No answer provided." %></span>
               <% if (portal === "staff") { %>
               <p class="inline-rating-label">Rate this answer</p>
               <div class="rating-circle-row">
@@ -291,7 +291,7 @@
 
             <div class="qa-item">
               <strong>Three pirates corner you, demanding you hand over your gear and your valuables. You don't have much on you, but you have a few diamonds that you found in a chest nearby. What do you do?</strong>
-              <span><%= entry.answers.scenarioPiratesCornerYou %></span>
+              <span><%= (entry.answers.scenarioPiratesCornerYou || "").trim() || "No answer provided." %></span>
               <% if (portal === "staff") { %>
               <p class="inline-rating-label">Rate this answer</p>
               <div class="rating-circle-row">
@@ -304,7 +304,7 @@
 
             <div class="qa-item">
               <strong>You come across a group of sailors that have been stranded on an island with very little food. They are hungry, and you and your team has an abundance of bread and cooked steak. What do you do?</strong>
-              <span><%= entry.answers.scenarioStrandedSailors %></span>
+              <span><%= (entry.answers.scenarioStrandedSailors || "").trim() || "No answer provided." %></span>
               <% if (portal === "staff") { %>
               <p class="inline-rating-label">Rate this answer</p>
               <div class="rating-circle-row">
