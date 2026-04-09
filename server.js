@@ -7,6 +7,7 @@ const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
 const DiscordStrategy = require("passport-discord").Strategy;
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 
@@ -17,6 +18,9 @@ const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
 const OAUTH_READY = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
 
 // Log staff/manager IDs at startup
@@ -26,6 +30,7 @@ console.log(`[STARTUP] DISCORD_CLIENT_ID set=${Boolean(DISCORD_CLIENT_ID)}`);
 console.log(`[STARTUP] DISCORD_CLIENT_SECRET set=${Boolean(DISCORD_CLIENT_SECRET)}`);
 console.log(`[STARTUP] DISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || "(not set)"}`);
 console.log(`[STARTUP] OAUTH_READY=${OAUTH_READY}`);
+console.log(`[STARTUP] SUPABASE_ENABLED=${SUPABASE_ENABLED}`);
 const MINIMUM_AGE = 13;
 const RESUBMIT_LOCK_MS = 24 * 60 * 60 * 1000;
 const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
@@ -76,6 +81,112 @@ const APPLICATION_PAGE_FIELDS = {
 const APPLICATION_ALL_FIELDS = Object.values(APPLICATION_PAGE_FIELDS).flat();
 
 const storePath = path.join(__dirname, "data", "store.json");
+let supabaseClient = null;
+
+function getSupabaseClient() {
+  if (!SUPABASE_ENABLED) {
+    return null;
+  }
+
+  if (!supabaseClient) {
+    supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    });
+  }
+
+  return supabaseClient;
+}
+
+async function insertSupabaseApplication(application) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return null;
+  }
+
+  const payload = {
+    discord_id: application.discordId,
+    ign: application.answers?.ign || "Unknown",
+    preferred_side: application.answers?.preferredSide || "Unknown",
+    status: application.status || "pending",
+    answers: application.answers || {},
+    archived: Boolean(application.archived),
+    created_at: application.createdAt,
+    updated_at: application.updatedAt
+  };
+
+  const { data, error } = await supabase
+    .from("applications")
+    .insert(payload)
+    .select("id")
+    .single();
+
+  if (error) {
+    throw new Error(`Supabase application insert failed: ${error.message}`);
+  }
+
+  return data?.id || null;
+}
+
+async function updateSupabaseApplicationStatus(application, updates = {}) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return;
+  }
+
+  let supabaseId = application.supabaseId || null;
+  if (!supabaseId) {
+    supabaseId = await insertSupabaseApplication(application);
+    if (supabaseId) {
+      application.supabaseId = supabaseId;
+    }
+  }
+
+  const payload = {
+    status: application.status,
+    archived: Boolean(application.archived),
+    answers: application.answers || {},
+    updated_at: application.updatedAt || new Date().toISOString(),
+    ...updates
+  };
+
+  const { error } = await supabase
+    .from("applications")
+    .update(payload)
+    .eq("id", supabaseId);
+
+  if (error) {
+    throw new Error(`Supabase application update failed: ${error.message}`);
+  }
+}
+
+async function insertSupabaseManagerLog(entry) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return;
+  }
+
+  const payload = {
+    action: entry.action,
+    application_id: entry.applicationId,
+    minecraft_username: entry.minecraftUsername || null,
+    actor_discord_id: entry.actorId || null,
+    actor_name: entry.actorName || null,
+    actor_alias: entry.actorAlias || null,
+    reason: entry.reason || null,
+    created_at: entry.at || new Date().toISOString()
+  };
+
+  const { error } = await supabase
+    .from("manager_logs")
+    .insert(payload);
+
+  if (error) {
+    throw new Error(`Supabase manager log insert failed: ${error.message}`);
+  }
+}
 
 function getApplicationTimestamp(application) {
   return new Date(application.createdAt || application.updatedAt || 0).getTime();
@@ -904,7 +1015,7 @@ app.get("/manager-logs", ensureSignedIn, ensurePortal("manager"), (req, res) => 
   });
 });
 
-function submitApplicationPayload(req, res, payload, options = {}) {
+async function submitApplicationPayload(req, res, payload, options = {}) {
   const skipRateLimit = options.skipRateLimit === true;
   const data = readStore();
   const existing = data.applications.find((item) => item.discordId === req.user.id);
@@ -959,7 +1070,7 @@ function submitApplicationPayload(req, res, payload, options = {}) {
 
   const now = new Date().toISOString();
 
-  data.applications.push({
+  const newApplication = {
     id: nextApplicationId(data.applications),
     discordId: req.user.id,
     ipHash: clientIpHash,
@@ -969,7 +1080,21 @@ function submitApplicationPayload(req, res, payload, options = {}) {
     updatedAt: now,
     reviewedBy: null,
     reviewedAt: null
-  });
+  };
+
+  data.applications.push(newApplication);
+
+  if (SUPABASE_ENABLED) {
+    try {
+      const supabaseId = await insertSupabaseApplication(newApplication);
+      if (supabaseId) {
+        newApplication.supabaseId = supabaseId;
+      }
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Database+save+failed.+Please+try+again.");
+    }
+  }
 
   writeStore(data);
   return res.redirect("/dashboard?notice=Application+submitted+successfully.");
@@ -1009,7 +1134,7 @@ app.post("/applications/draft-step", ensureSignedIn, ensurePortal("applicant"), 
   return res.redirect(`/dashboard?formPage=${nextStep}`);
 });
 
-app.post("/applications/submit-step", ensureSignedIn, ensurePortal("applicant"), (req, res) => {
+app.post("/applications/submit-step", ensureSignedIn, ensurePortal("applicant"), async (req, res) => {
   const incoming = sanitizeDraftFields(req.body);
   const payload = {
     ...sanitizeDraftFields(req.session.applicationDraft || {}),
@@ -1020,7 +1145,7 @@ app.post("/applications/submit-step", ensureSignedIn, ensurePortal("applicant"),
   return submitApplicationPayload(req, res, payload);
 });
 
-app.post("/applications", ensureSignedIn, ensurePortal("applicant"), (req, res) => {
+app.post("/applications", ensureSignedIn, ensurePortal("applicant"), async (req, res) => {
   const payload = normalizeApplicationPayload(req.body);
 
   return submitApplicationPayload(req, res, payload);
@@ -1048,17 +1173,17 @@ function createTestApplicationPayload(preferredSide) {
   };
 }
 
-app.post("/applications/test", ensureSignedIn, ensurePortal("applicant"), (req, res) => {
+app.post("/applications/test", ensureSignedIn, ensurePortal("applicant"), async (req, res) => {
   const payload = createTestApplicationPayload("Pirates");
   return submitApplicationPayload(req, res, payload, { skipRateLimit: true });
 });
 
-app.post("/applications/test/pirates", ensureSignedIn, ensurePortal("applicant"), (req, res) => {
+app.post("/applications/test/pirates", ensureSignedIn, ensurePortal("applicant"), async (req, res) => {
   const payload = createTestApplicationPayload("Pirates");
   return submitApplicationPayload(req, res, payload, { skipRateLimit: true });
 });
 
-app.post("/applications/test/sailors", ensureSignedIn, ensurePortal("applicant"), (req, res) => {
+app.post("/applications/test/sailors", ensureSignedIn, ensurePortal("applicant"), async (req, res) => {
   const payload = createTestApplicationPayload("Sailors");
 
   return submitApplicationPayload(req, res, payload, { skipRateLimit: true });
@@ -1126,6 +1251,25 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
     actorAlias: reviewerAlias,
     reason: decisionReason
   });
+
+  if (SUPABASE_ENABLED) {
+    try {
+      await updateSupabaseApplicationStatus(application);
+      await insertSupabaseManagerLog({
+        action: decision,
+        applicationId: application.supabaseId || application.id,
+        minecraftUsername: application.answers.ign,
+        actorId: req.user.id,
+        actorAlias: reviewerAlias,
+        reason: decisionReason,
+        at: application.reviewedAt
+      });
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Decision+saved+locally,+but+database+write+failed.");
+    }
+  }
+
   writeStore(data);
 
   const minecraftName = application.answers.ign;
@@ -1178,6 +1322,12 @@ app.post("/applications/:id/relook", ensureSignedIn, ensurePortal("manager"), (r
     decisionReason: relookReason || "",
     at: now
   });
+
+  if (SUPABASE_ENABLED) {
+    updateSupabaseApplicationStatus(application).catch((error) => {
+      console.error(`[WARN] ${error.message}`);
+    });
+  }
 
   writeStore(data);
   return res.redirect(`/dashboard?notice=Application+${id}+reopened+for+relook.`);
@@ -1261,6 +1411,16 @@ app.post("/applications/:id/under-review", ensureSignedIn, ensurePortal("staff")
   application.lastViewedByAlias = staffAlias;
   application.underReviewBy = req.user.id;
   application.underReviewAt = application.updatedAt;
+
+  if (SUPABASE_ENABLED) {
+    try {
+      await updateSupabaseApplicationStatus(application);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Review+saved+locally,+but+database+write+failed.");
+    }
+  }
+
   writeStore(data);
 
   const minecraftName = application.answers.ign;
@@ -1309,6 +1469,30 @@ app.post("/applications/:id/delete", ensureSignedIn, ensurePortal("manager"), (r
     actorAlias: managerAlias,
     reason: deleteReason
   });
+
+  if (SUPABASE_ENABLED) {
+    updateSupabaseApplicationStatus({
+      ...removed,
+      status: removed.status,
+      archived: removed.archived,
+      updatedAt: new Date().toISOString(),
+      answers: removed.answers,
+      supabaseId: removed.supabaseId
+    }).catch((error) => {
+      console.error(`[WARN] ${error.message}`);
+    });
+
+    insertSupabaseManagerLog({
+      action: "deleted",
+      applicationId: removed.supabaseId || removed.id,
+      minecraftUsername: removed.answers?.ign || "Unknown",
+      actorId: req.user.id,
+      actorAlias: managerAlias,
+      reason: deleteReason
+    }).catch((error) => {
+      console.error(`[WARN] ${error.message}`);
+    });
+  }
 
   data.applications.splice(index, 1);
   writeStore(data);
