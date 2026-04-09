@@ -182,6 +182,11 @@
           <input name="search" placeholder="Search by IGN" value="<%= searchQuery || "" %>" />
           <button type="submit" class="button button-ghost">Search</button>
         </form>
+
+        <form method="post" action="/applications/delete-all" class="danger-form" onsubmit="return confirm('Warning: This will permanently delete ALL applications. This cannot be undone. Continue?');">
+          <label><span>Delete All Applications Password</span><input type="password" name="deleteAllPassword" required /></label>
+          <button type="submit" class="button button-danger">Delete All Applications</button>
+        </form>
         <% } %>
 
         <% const page = Number(currentPage || 1); %>

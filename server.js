@@ -21,6 +21,7 @@ const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
+const DELETE_ALL_PASSWORD = process.env.DELETE_ALL_PASSWORD || "uwstjEGFAYESHJKADJHGFVDGHSFKJHFDASVSDGHNFLJHG";
 const OAUTH_READY = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
 
 // Log staff/manager IDs at startup
@@ -221,6 +222,39 @@ async function insertSupabaseManagerLog(entry) {
 
   if (error) {
     throw new Error(`Supabase manager log insert failed: ${error.message}`);
+  }
+}
+
+async function deleteSupabaseApplication(application) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return;
+  }
+
+  const supabaseId = application.supabaseId || application.id;
+  const { error } = await supabase
+    .from("applications")
+    .delete()
+    .eq("id", supabaseId);
+
+  if (error) {
+    throw new Error(`Supabase application delete failed: ${error.message}`);
+  }
+}
+
+async function deleteAllSupabaseApplications() {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("applications")
+    .delete()
+    .gt("id", 0);
+
+  if (error) {
+    throw new Error(`Supabase bulk delete failed: ${error.message}`);
   }
 }
 
@@ -1654,32 +1688,47 @@ app.post("/applications/:id/delete", ensureSignedIn, ensurePortal("manager"), as
   });
 
   if (SUPABASE_ENABLED) {
-    updateSupabaseApplicationStatus({
-      ...removed,
-      status: removed.status,
-      archived: removed.archived,
-      updatedAt: new Date().toISOString(),
-      answers: removed.answers,
-      supabaseId: removed.supabaseId
-    }).catch((error) => {
-      console.error(`[WARN] ${error.message}`);
-    });
-
-    insertSupabaseManagerLog({
-      action: "deleted",
-      applicationId: removed.supabaseId || removed.id,
-      minecraftUsername: removed.answers?.ign || "Unknown",
-      actorId: req.user.id,
-      actorAlias: managerAlias,
-      reason: deleteReason
-    }).catch((error) => {
-      console.error(`[WARN] ${error.message}`);
-    });
+    try {
+      await deleteSupabaseApplication(removed);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+delete+application+from+database.");
+    }
   }
 
   data.applications.splice(index, 1);
   writeStore(data);
   return res.redirect(`/dashboard?notice=Application+${id}+was+deleted+permanently.`);
+});
+
+app.post("/applications/delete-all", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
+  const providedPassword = (req.body.deleteAllPassword || "").toString();
+  if (!providedPassword || providedPassword !== DELETE_ALL_PASSWORD) {
+    return res.redirect("/dashboard?error=Delete+all+password+is+incorrect.");
+  }
+
+  const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await deleteAllSupabaseApplications();
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+delete+all+applications+from+database.");
+    }
+  }
+
+  data.applications = [];
+  appendAuditLog(data, {
+    action: "bulk_deleted",
+    applicationId: null,
+    minecraftUsername: null,
+    actorId: req.user.id,
+    actorAlias: getDisplayName(data.users[req.user.id] || req.user || {}) || "Manager",
+    reason: "Manager deleted all applications"
+  });
+  writeStore(data);
+
+  return res.redirect("/dashboard?notice=All+applications+were+deleted.");
 });
 
 app.post("/applications/:id/archive", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
