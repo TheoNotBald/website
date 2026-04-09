@@ -106,12 +106,30 @@ async function insertSupabaseApplication(application) {
     return null;
   }
 
+  const persistedAnswers = {
+    ...(application.answers || {}),
+    questionScores: Array.isArray(application.questionScores) ? application.questionScores : [],
+    staffReviews: Array.isArray(application.staffReviews) ? application.staffReviews : [],
+    averageScore: Number.isFinite(Number(application.averageScore)) ? Number(application.averageScore) : null,
+    staffQuickRating: Number.isFinite(Number(application.staffQuickRating)) ? Number(application.staffQuickRating) : null,
+    reviewedBy: application.reviewedBy || null,
+    reviewedAt: application.reviewedAt || null,
+    reviewerAlias: application.reviewerAlias || null,
+    decisionReason: application.decisionReason || null,
+    underReviewAt: application.underReviewAt || null,
+    lastViewedByAlias: application.lastViewedByAlias || null,
+    reopenReason: application.reopenReason || null,
+    reopenedAt: application.reopenedAt || null,
+    reopenedBy: application.reopenedBy || null,
+    reopenedByAlias: application.reopenedByAlias || null
+  };
+
   const payload = {
     discord_id: application.discordId,
     ign: application.answers?.ign || "Unknown",
     preferred_side: application.answers?.preferredSide || "Unknown",
     status: application.status || "pending",
-    answers: application.answers || {},
+    answers: persistedAnswers,
     archived: Boolean(application.archived),
     created_at: application.createdAt,
     updated_at: application.updatedAt
@@ -144,10 +162,28 @@ async function updateSupabaseApplicationStatus(application, updates = {}) {
     }
   }
 
+  const persistedAnswers = {
+    ...(application.answers || {}),
+    questionScores: Array.isArray(application.questionScores) ? application.questionScores : [],
+    staffReviews: Array.isArray(application.staffReviews) ? application.staffReviews : [],
+    averageScore: Number.isFinite(Number(application.averageScore)) ? Number(application.averageScore) : null,
+    staffQuickRating: Number.isFinite(Number(application.staffQuickRating)) ? Number(application.staffQuickRating) : null,
+    reviewedBy: application.reviewedBy || null,
+    reviewedAt: application.reviewedAt || null,
+    reviewerAlias: application.reviewerAlias || null,
+    decisionReason: application.decisionReason || null,
+    underReviewAt: application.underReviewAt || null,
+    lastViewedByAlias: application.lastViewedByAlias || null,
+    reopenReason: application.reopenReason || null,
+    reopenedAt: application.reopenedAt || null,
+    reopenedBy: application.reopenedBy || null,
+    reopenedByAlias: application.reopenedByAlias || null
+  };
+
   const payload = {
     status: application.status,
     archived: Boolean(application.archived),
-    answers: application.answers || {},
+    answers: persistedAnswers,
     updated_at: application.updatedAt || new Date().toISOString(),
     ...updates
   };
@@ -186,6 +222,52 @@ async function insertSupabaseManagerLog(entry) {
   if (error) {
     throw new Error(`Supabase manager log insert failed: ${error.message}`);
   }
+}
+
+function mapSupabaseApplicationRow(row) {
+  const answers = row.answers || {};
+  return {
+    id: Number(row.id),
+    supabaseId: Number(row.id),
+    discordId: row.discord_id || answers.discordUid || "",
+    status: (row.status || "pending").toString(),
+    answers,
+    archived: Boolean(row.archived),
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || row.created_at || new Date().toISOString(),
+    reviewedBy: answers.reviewedBy || null,
+    reviewedAt: answers.reviewedAt || null,
+    reviewerAlias: answers.reviewerAlias || null,
+    decisionReason: answers.decisionReason || null,
+    questionScores: Array.isArray(answers.questionScores) ? answers.questionScores : [],
+    staffReviews: Array.isArray(answers.staffReviews) ? answers.staffReviews : [],
+    averageScore: Number.isFinite(Number(answers.averageScore)) ? Number(answers.averageScore) : null,
+    staffQuickRating: Number.isFinite(Number(answers.staffQuickRating)) ? Number(answers.staffQuickRating) : null,
+    underReviewAt: answers.underReviewAt || null,
+    lastViewedByAlias: answers.lastViewedByAlias || null,
+    reopenReason: answers.reopenReason || null,
+    reopenedAt: answers.reopenedAt || null,
+    reopenedBy: answers.reopenedBy || null,
+    reopenedByAlias: answers.reopenedByAlias || null
+  };
+}
+
+async function hydrateApplicationsFromSupabase(data) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return;
+  }
+
+  const { data: rows, error } = await supabase
+    .from("applications")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`Supabase application query failed: ${error.message}`);
+  }
+
+  data.applications = (rows || []).map(mapSupabaseApplicationRow);
 }
 
 function getApplicationTimestamp(application) {
@@ -706,8 +788,16 @@ app.get(
   }
 );
 
-app.get("/dashboard", ensureSignedIn, (req, res) => {
+app.get("/dashboard", ensureSignedIn, async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const portal = req.session.portal;
   const persistedUser = data.users[req.user.id] || null;
   const user = persistedUser || {
@@ -914,8 +1004,16 @@ app.get("/dashboard", ensureSignedIn, (req, res) => {
   });
 });
 
-app.get("/applications/:id/review", ensureSignedIn, ensurePortal("staff", "manager"), (req, res) => {
+app.get("/applications/:id/review", ensureSignedIn, ensurePortal("staff", "manager"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const id = Number(req.params.id);
   const application = data.applications.find((item) => item.id === id && !item.archived);
 
@@ -962,8 +1060,16 @@ app.get("/applications/:id/review", ensureSignedIn, ensurePortal("staff", "manag
   });
 });
 
-app.post("/applications/:id/score", ensureSignedIn, ensurePortal("staff"), (req, res) => {
+app.post("/applications/:id/score", ensureSignedIn, ensurePortal("staff"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const id = Number(req.params.id);
   const reviewerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Staff Reviewer";
   const searchQuery = (req.body.searchQuery || "").toString().trim();
@@ -1008,8 +1114,16 @@ app.post("/applications/:id/score", ensureSignedIn, ensurePortal("staff"), (req,
   );
 });
 
-app.get("/archives", ensureSignedIn, ensurePortal("manager"), (req, res) => {
+app.get("/archives", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const user = data.users[req.user.id];
 
   const archives = data.applications
@@ -1047,6 +1161,14 @@ app.get("/manager-logs", ensureSignedIn, ensurePortal("manager"), (req, res) => 
 async function submitApplicationPayload(req, res, payload, options = {}) {
   const skipRateLimit = options.skipRateLimit === true;
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const existing = data.applications.find((item) => item.discordId === req.user.id);
   const clientIpHash = hashIp(getClientIp(req));
   const ipLocked = data.applications.some(
@@ -1220,6 +1342,14 @@ app.post("/applications/test/sailors", ensureSignedIn, ensurePortal("applicant")
 
 app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const id = Number(req.params.id);
   const decision = (req.body.decision || "").toString();
   const reviewerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Manager";
@@ -1317,8 +1447,16 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
   }
 });
 
-app.post("/applications/:id/relook", ensureSignedIn, ensurePortal("manager"), (req, res) => {
+app.post("/applications/:id/relook", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const id = Number(req.params.id);
   const relookReason = (req.body.relookReason || "").trim();
   const managerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Manager";
@@ -1364,6 +1502,14 @@ app.post("/applications/:id/relook", ensureSignedIn, ensurePortal("manager"), (r
 
 app.post("/applications/:id/under-review", ensureSignedIn, ensurePortal("staff"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const id = Number(req.params.id);
   const inferredStaffAlias = getDisplayName(data.users[req.user.id] || req.user || {});
   const staffAlias = (req.body.staffAlias || "").trim() || inferredStaffAlias || "Staff Reviewer";
@@ -1465,8 +1611,16 @@ app.post("/applications/:id/under-review", ensureSignedIn, ensurePortal("staff")
   }
 });
 
-app.post("/applications/:id/delete", ensureSignedIn, ensurePortal("manager"), (req, res) => {
+app.post("/applications/:id/delete", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const id = Number(req.params.id);
   const confirmDelete = (req.body.confirmDelete || "").toString();
   const managerAlias = getDisplayName(data.users[req.user.id] || req.user || {}) || "Manager";
@@ -1528,8 +1682,16 @@ app.post("/applications/:id/delete", ensureSignedIn, ensurePortal("manager"), (r
   return res.redirect(`/dashboard?notice=Application+${id}+was+deleted+permanently.`);
 });
 
-app.post("/applications/:id/archive", ensureSignedIn, ensurePortal("manager"), (req, res) => {
+app.post("/applications/:id/archive", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.redirect("/dashboard?error=Failed+to+load+applications+from+database.");
+    }
+  }
   const id = Number(req.params.id);
   const application = data.applications.find((item) => item.id === id);
 
@@ -1546,8 +1708,16 @@ app.post("/applications/:id/archive", ensureSignedIn, ensurePortal("manager"), (
   return res.redirect(`/dashboard?notice=Application+${id}+was+archived.`);
 });
 
-app.get("/applications/:id/download", ensureSignedIn, ensurePortal("manager"), (req, res) => {
+app.get("/applications/:id/download", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
   const data = readStore();
+  if (SUPABASE_ENABLED) {
+    try {
+      await hydrateApplicationsFromSupabase(data);
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+      return res.status(500).send("Failed to load applications from database.");
+    }
+  }
   const id = Number(req.params.id);
   const application = data.applications.find((item) => item.id === id);
 
