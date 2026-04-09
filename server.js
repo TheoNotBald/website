@@ -569,7 +569,13 @@ app.get(
 app.get("/dashboard", ensureSignedIn, (req, res) => {
   const data = readStore();
   const portal = req.session.portal;
-  const user = data.users[req.user.id];
+  const persistedUser = data.users[req.user.id] || null;
+  const user = persistedUser || {
+    id: req.user.id,
+    username: req.user.username || null,
+    globalName: req.user.globalName || req.user.global_name || null,
+    avatar: req.user.avatar || null
+  };
   const reviewerId = req.user.id;
   console.log(`[DEBUG] Dashboard: portal=${portal}, userId=${req.user.id}, isAuthenticated=${req.isAuthenticated()}`);
   console.log(`[DEBUG] Session portal value: ${JSON.stringify(req.session.portal)}`);
