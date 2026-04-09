@@ -202,6 +202,34 @@ function pruneExpiredApplications(data) {
   return data.applications.length !== originalLength;
 }
 
+function pruneLegacyApplications(data) {
+  const requiredAnswerFields = [
+    "ign",
+    "aboutYourself",
+    "eventGoals",
+    "pastEventExperience",
+    "characterDescription",
+    "failureStory",
+    "scenarioPiratesCornerYou",
+    "scenarioStrandedSailors"
+  ];
+
+  const originalLength = Array.isArray(data.applications) ? data.applications.length : 0;
+  data.applications = (data.applications || []).filter((application) => {
+    const answers = application && application.answers ? application.answers : null;
+    if (!answers) {
+      return false;
+    }
+
+    return requiredAnswerFields.every((field) => {
+      const value = (answers[field] || "").toString().trim();
+      return value.length > 0;
+    });
+  });
+
+  return data.applications.length !== originalLength;
+}
+
 function readStore() {
   const raw = fs.readFileSync(storePath, "utf8");
   const data = JSON.parse(raw);
@@ -209,7 +237,8 @@ function readStore() {
   data.applications = Array.isArray(data.applications) ? data.applications : [];
   data.auditLog = Array.isArray(data.auditLog) ? data.auditLog : [];
   const didPrune = pruneExpiredApplications(data);
-  if (didPrune) {
+  const didPruneLegacy = pruneLegacyApplications(data);
+  if (didPrune || didPruneLegacy) {
     writeStore(data);
   }
   return data;
