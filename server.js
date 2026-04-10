@@ -335,7 +335,10 @@ function getApplicationTimestamp(application) {
 
 function isApplicationExpired(application, now = Date.now()) {
   const ts = getApplicationTimestamp(application);
-  return Number.isFinite(ts) && now - ts >= APPLICATION_RETENTION_MS;
+  if (!Number.isFinite(ts)) {
+    return true;
+  }
+  return now - ts >= APPLICATION_RETENTION_MS;
 }
 
 function pruneExpiredApplications(data) {

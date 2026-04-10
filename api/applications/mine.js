@@ -5,7 +5,10 @@ const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
 
 function isApplicationExpired(row, now = Date.now()) {
   const ts = new Date(row.created_at || row.updated_at || 0).getTime();
-  return Number.isFinite(ts) && now - ts >= APPLICATION_RETENTION_MS;
+  if (!Number.isFinite(ts)) {
+    return true;
+  }
+  return now - ts >= APPLICATION_RETENTION_MS;
 }
 
 module.exports = async function handler(req, res) {

@@ -62,7 +62,10 @@ function validatePayload(payload) {
 
 function isApplicationExpired(row, now = Date.now()) {
   const ts = new Date(row.created_at || row.updated_at || 0).getTime();
-  return Number.isFinite(ts) && now - ts >= APPLICATION_RETENTION_MS;
+  if (!Number.isFinite(ts)) {
+    return true;
+  }
+  return now - ts >= APPLICATION_RETENTION_MS;
 }
 
 async function getActiveApplicationsForDiscord(discordId) {
