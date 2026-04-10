@@ -33,7 +33,6 @@ console.log(`[STARTUP] DISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || "(not set)
 console.log(`[STARTUP] OAUTH_READY=${OAUTH_READY}`);
 console.log(`[STARTUP] SUPABASE_ENABLED=${SUPABASE_ENABLED}`);
 const MINIMUM_AGE = 13;
-const RESUBMIT_LOCK_MS = 24 * 60 * 60 * 1000;
 const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
 const PROFANITY_WORDS = [
   "fuck",
@@ -258,6 +257,22 @@ async function deleteAllSupabaseApplications() {
   }
 }
 
+async function deleteSupabaseApplicationsByIds(ids) {
+  const supabase = getSupabaseClient();
+  if (!supabase || !Array.isArray(ids) || ids.length === 0) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("applications")
+    .delete()
+    .in("id", ids);
+
+  if (error) {
+    throw new Error(`Supabase application cleanup failed: ${error.message}`);
+  }
+}
+
 function mapSupabaseApplicationRow(row) {
   const answers = row.answers || {};
   return {
@@ -301,19 +316,33 @@ async function hydrateApplicationsFromSupabase(data) {
     throw new Error(`Supabase application query failed: ${error.message}`);
   }
 
-  data.applications = (rows || []).map(mapSupabaseApplicationRow);
+  const mappedRows = (rows || []).map(mapSupabaseApplicationRow);
+  const expiredIds = mappedRows
+    .filter((application) => isApplicationExpired(application))
+    .map((application) => application.supabaseId || application.id)
+    .filter((id) => Number.isFinite(Number(id)));
+
+  if (expiredIds.length) {
+    await deleteSupabaseApplicationsByIds(expiredIds);
+  }
+
+  data.applications = mappedRows.filter((application) => !isApplicationExpired(application));
 }
 
 function getApplicationTimestamp(application) {
   return new Date(application.createdAt || application.updatedAt || 0).getTime();
 }
 
+function isApplicationExpired(application, now = Date.now()) {
+  const ts = getApplicationTimestamp(application);
+  return Number.isFinite(ts) && now - ts >= APPLICATION_RETENTION_MS;
+}
+
 function pruneExpiredApplications(data) {
   const now = Date.now();
   const originalLength = Array.isArray(data.applications) ? data.applications.length : 0;
   data.applications = (data.applications || []).filter((application) => {
-    const ts = getApplicationTimestamp(application);
-    return Number.isFinite(ts) && now - ts < APPLICATION_RETENTION_MS;
+    return !isApplicationExpired(application, now);
   });
   return data.applications.length !== originalLength;
 }
@@ -634,14 +663,6 @@ function getClientIp(req) {
 
 function hashIp(ip) {
   return crypto.createHash("sha256").update(`${SESSION_SECRET}:${ip}`).digest("hex");
-}
-
-function isWithinLockWindow(isoTime) {
-  const ts = new Date(isoTime).getTime();
-  if (!Number.isFinite(ts)) {
-    return false;
-  }
-  return Date.now() - ts < RESUBMIT_LOCK_MS;
 }
 
 function normalizeApplicationPayload(raw = {}) {
@@ -1224,7 +1245,6 @@ app.get("/manager-logs", ensureSignedIn, ensurePortal("manager"), (req, res) => 
 });
 
 async function submitApplicationPayload(req, res, payload, options = {}) {
-  const skipRateLimit = options.skipRateLimit === true;
   const data = readStore();
   if (SUPABASE_ENABLED) {
     try {
@@ -1236,16 +1256,11 @@ async function submitApplicationPayload(req, res, payload, options = {}) {
   }
   const existing = data.applications.find((item) => item.discordId === req.user.id);
   const clientIpHash = hashIp(getClientIp(req));
-  const ipLocked = data.applications.some(
-    (item) => item.ipHash === clientIpHash && isWithinLockWindow(item.createdAt)
-  );
 
-  if (!skipRateLimit && ipLocked) {
-    return res.redirect("/dashboard?error=You+can+only+submit+one+application+per+IP+every+24+hours.");
-  }
-
-  if (!skipRateLimit && existing && isWithinLockWindow(existing.createdAt)) {
-    return res.redirect("/dashboard?error=You+must+wait+24+hours+before+submitting+another+application.");
+  if (existing) {
+    return res.redirect(
+      "/dashboard?error=You+already+have+an+application+on+file.+Ask+a+manager+to+delete+it+or+wait+for+it+to+auto-delete+after+60+days."
+    );
   }
 
   const missing = Object.entries(payload)

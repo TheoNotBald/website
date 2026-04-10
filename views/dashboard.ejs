@@ -35,7 +35,13 @@
       <% if (portal === "applicant") { %>
       <section class="panel">
         <h2>Application Form</h2>
-        <p class="panel-subtitle">Capacity is unlimited and records auto-delete after 60 days.</p>
+        <p class="panel-subtitle">One application per Discord account. Records auto-delete after 60 days.</p>
+
+        <% if (application) { %>
+        <section class="notice warning">
+          You already have an application on file. You can submit again only after a manager deletes it or after it auto-deletes in 60 days.
+        </section>
+        <% } %>
 
         <% const draft = draftApplication || {}; %>
         <% const formPage = Number(applicantFormPage || 1); %>

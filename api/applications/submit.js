@@ -1,6 +1,8 @@
 const { supabase } = require("../_lib/supabase");
 const { sendJson, methodNotAllowed } = require("../_lib/http");
 
+const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
+
 const REQUIRED_FIELDS = [
   "ign",
   "discordUser",
@@ -58,6 +60,39 @@ function validatePayload(payload) {
   return missingFields;
 }
 
+function isApplicationExpired(row, now = Date.now()) {
+  const ts = new Date(row.created_at || row.updated_at || 0).getTime();
+  return Number.isFinite(ts) && now - ts >= APPLICATION_RETENTION_MS;
+}
+
+async function getActiveApplicationsForDiscord(discordId) {
+  const { data, error } = await supabase
+    .from("applications")
+    .select("id, created_at, updated_at")
+    .eq("discord_id", discordId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  const rows = data || [];
+  const expiredIds = rows.filter(isApplicationExpired).map((row) => row.id);
+
+  if (expiredIds.length) {
+    const deleteResult = await supabase
+      .from("applications")
+      .delete()
+      .in("id", expiredIds);
+
+    if (deleteResult.error) {
+      throw deleteResult.error;
+    }
+  }
+
+  return rows.filter((row) => !isApplicationExpired(row));
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return methodNotAllowed(res, ["POST"]);
@@ -76,6 +111,20 @@ module.exports = async function handler(req, res) {
   const authDiscordId = (req.headers["x-discord-id"] || "").toString().trim();
   if (authDiscordId && authDiscordId !== payload.discordUid) {
     return sendJson(res, 403, { error: "Discord identity mismatch." });
+  }
+
+  try {
+    const activeApplications = await getActiveApplicationsForDiscord(payload.discordUid);
+    if (activeApplications.length > 0) {
+      return sendJson(res, 409, {
+        error: "You already have an application on file. Ask a manager to delete it or wait for it to auto-delete after 60 days."
+      });
+    }
+  } catch (error) {
+    return sendJson(res, 500, {
+      error: "Failed to check existing applications.",
+      detail: error.message
+    });
   }
 
   const insertRow = {
