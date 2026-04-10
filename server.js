@@ -787,6 +787,87 @@ async function sendDiscordDM(userId, content) {
   return { sent: true, skipped: false };
 }
 
+async function fetchDiscordBotIdentity() {
+  if (!DISCORD_BOT_TOKEN) {
+    return {
+      ok: false,
+      error: "DISCORD_BOT_TOKEN is not configured."
+    };
+  }
+
+  const res = await fetch("https://discord.com/api/v10/users/@me", {
+    method: "GET",
+    headers: {
+      Authorization: `Bot ${DISCORD_BOT_TOKEN}`
+    }
+  });
+
+  const raw = await res.text();
+  let parsed = null;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    parsed = null;
+  }
+
+  if (!res.ok) {
+    return {
+      ok: false,
+      status: res.status,
+      error: parsed?.message || raw || "Failed to fetch bot identity.",
+      code: parsed?.code || null
+    };
+  }
+
+  return {
+    ok: true,
+    id: parsed?.id || null,
+    username: parsed?.username || null,
+    globalName: parsed?.global_name || null,
+    discriminator: parsed?.discriminator || null
+  };
+}
+
+async function checkDiscordDmEligibility(targetDiscordId) {
+  if (!DISCORD_BOT_TOKEN) {
+    return {
+      ok: false,
+      error: "DISCORD_BOT_TOKEN is not configured."
+    };
+  }
+
+  const res = await fetch("https://discord.com/api/v10/users/@me/channels", {
+    method: "POST",
+    headers: {
+      Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ recipient_id: targetDiscordId })
+  });
+
+  const raw = await res.text();
+  let parsed = null;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    parsed = null;
+  }
+
+  if (!res.ok) {
+    return {
+      ok: false,
+      status: res.status,
+      code: parsed?.code || null,
+      message: parsed?.message || raw || "DM channel creation failed."
+    };
+  }
+
+  return {
+    ok: true,
+    channelId: parsed?.id || null
+  };
+}
+
 function acceptedMessage(ign, averageScore) {
   return [
     "Hello! Your Starfall event application has been reviewed.",
@@ -818,6 +899,45 @@ app.get("/", (req, res) => {
     user: req.user,
     portal: req.session.portal || null
   });
+});
+
+app.get("/debug/discord/bot", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
+  try {
+    const identity = await fetchDiscordBotIdentity();
+    return res.json({
+      now: new Date().toISOString(),
+      identity
+    });
+  } catch (error) {
+    return res.status(500).json({
+      now: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
+app.get("/debug/discord/dm-check/:discordId", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
+  const targetDiscordId = (req.params.discordId || "").toString().trim();
+  if (!targetDiscordId) {
+    return res.status(400).json({ error: "Missing discordId path parameter." });
+  }
+
+  try {
+    const identity = await fetchDiscordBotIdentity();
+    const check = await checkDiscordDmEligibility(targetDiscordId);
+    return res.json({
+      now: new Date().toISOString(),
+      targetDiscordId,
+      bot: identity,
+      dmCheck: check
+    });
+  } catch (error) {
+    return res.status(500).json({
+      now: new Date().toISOString(),
+      targetDiscordId,
+      error: error.message
+    });
+  }
 });
 
 app.get("/login/applicant", (req, res) => {
