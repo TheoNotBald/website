@@ -17,7 +17,12 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "change-me-in-env";
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL;
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+const DISCORD_BOT_TOKEN = (
+  process.env.DISCORD_BOT_TOKEN
+  || process.env.DISCORD_TOKEN
+  || process.env.BOT_TOKEN
+  || ""
+).trim();
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
@@ -30,6 +35,7 @@ console.log(`[STARTUP] MANAGER_DISCORD_IDS=${process.env.MANAGER_DISCORD_IDS || 
 console.log(`[STARTUP] DISCORD_CLIENT_ID set=${Boolean(DISCORD_CLIENT_ID)}`);
 console.log(`[STARTUP] DISCORD_CLIENT_SECRET set=${Boolean(DISCORD_CLIENT_SECRET)}`);
 console.log(`[STARTUP] DISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || "(not set)"}`);
+console.log(`[STARTUP] DISCORD_BOT_TOKEN set=${Boolean(DISCORD_BOT_TOKEN)}`);
 console.log(`[STARTUP] OAUTH_READY=${OAUTH_READY}`);
 console.log(`[STARTUP] SUPABASE_ENABLED=${SUPABASE_ENABLED}`);
 const MINIMUM_AGE = 13;
@@ -707,7 +713,7 @@ function parseFormPage(value) {
 
 async function sendDiscordDM(userId, content) {
   if (!DISCORD_BOT_TOKEN) {
-    throw new Error("DISCORD_BOT_TOKEN is not configured.");
+    throw new Error("Discord bot token is not configured. Set DISCORD_BOT_TOKEN (or DISCORD_TOKEN/BOT_TOKEN).");
   }
 
   const channelRes = await fetch("https://discord.com/api/v10/users/@me/channels", {
