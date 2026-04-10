@@ -41,8 +41,6 @@ console.log(`[STARTUP] SUPABASE_ENABLED=${SUPABASE_ENABLED}`);
 const MINIMUM_AGE = 13;
 const APPLICATION_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
 const PROFANITY_WORDS = [
-  "fuck",
-  "shit",
   "bitch",
   "asshole",
   "bastard",
@@ -727,11 +725,23 @@ async function sendDiscordDM(userId, content) {
 
   if (!channelRes.ok) {
     const details = await channelRes.text();
-    if (channelRes.status === 403) {
+    let parsed = null;
+    try {
+      parsed = JSON.parse(details);
+    } catch {
+      parsed = null;
+    }
+    const discordCode = parsed && parsed.code ? Number(parsed.code) : null;
+    const isKnownDmRestriction = channelRes.status === 403 && [50007, 50278].includes(discordCode);
+
+    if (isKnownDmRestriction) {
       return {
         sent: false,
         skipped: true,
-        reason: "Discord user has no mutual guilds or has DMs closed.",
+        code: discordCode,
+        reason: parsed && parsed.message
+          ? parsed.message
+          : "Discord blocked the bot DM due to account privacy or no mutual guild.",
         details
       };
     }
@@ -751,11 +761,23 @@ async function sendDiscordDM(userId, content) {
 
   if (!messageRes.ok) {
     const details = await messageRes.text();
-    if (messageRes.status === 403) {
+    let parsed = null;
+    try {
+      parsed = JSON.parse(details);
+    } catch {
+      parsed = null;
+    }
+    const discordCode = parsed && parsed.code ? Number(parsed.code) : null;
+    const isKnownDmRestriction = messageRes.status === 403 && [50007, 50278].includes(discordCode);
+
+    if (isKnownDmRestriction) {
       return {
         sent: false,
         skipped: true,
-        reason: "Discord user has no mutual guilds or has DMs closed.",
+        code: discordCode,
+        reason: parsed && parsed.message
+          ? parsed.message
+          : "Discord blocked the bot DM due to account privacy or no mutual guild.",
         details
       };
     }
@@ -1547,8 +1569,8 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
   try {
     const dmResult = await sendDiscordDM(application.discordId, content);
     if (dmResult?.skipped) {
-      console.warn(`[WARN] DM skipped for application ${id}: ${dmResult.reason}`);
-      return res.redirect(`/dashboard?notice=Application+${id}+${decision}+and+ratings+saved.+DM+was+skipped+because+the+user+cannot+receive+messages.`);
+      console.warn(`[WARN] DM skipped for application ${id} to discordId=${application.discordId}, code=${dmResult.code || "unknown"}: ${dmResult.reason}`);
+      return res.redirect(`/dashboard?notice=Application+${id}+${decision}+and+ratings+saved.+DM+skipped+by+Discord+(code+${encodeURIComponent(String(dmResult.code || "unknown"))}).`);
     }
     return res.redirect(`/dashboard?notice=Application+${id}+${decision}+and+DM+sent.`);
   } catch (error) {
@@ -1715,8 +1737,8 @@ app.post("/applications/:id/under-review", ensureSignedIn, ensurePortal("staff")
   try {
     const dmResult = await sendDiscordDM(application.discordId, content);
     if (dmResult?.skipped) {
-      console.warn(`[WARN] DM skipped for application ${id}: ${dmResult.reason}`);
-      return res.redirect(`/dashboard?notice=Application+${id}+marked+under+review+and+ratings+saved.+DM+was+skipped+because+the+user+cannot+receive+messages.`);
+      console.warn(`[WARN] DM skipped for application ${id} to discordId=${application.discordId}, code=${dmResult.code || "unknown"}: ${dmResult.reason}`);
+      return res.redirect(`/dashboard?notice=Application+${id}+marked+under+review+and+ratings+saved.+DM+skipped+by+Discord+(code+${encodeURIComponent(String(dmResult.code || "unknown"))}).`);
     }
     return res.redirect(`/dashboard?notice=Application+${id}+marked+under+review,+ratings+saved,+and+DM+sent.`);
   } catch (error) {
