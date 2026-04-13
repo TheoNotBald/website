@@ -868,6 +868,86 @@ async function checkDiscordDmEligibility(targetDiscordId) {
   };
 }
 
+async function sendDiscordDmTest(targetDiscordId, content) {
+  if (!DISCORD_BOT_TOKEN) {
+    return {
+      ok: false,
+      error: "DISCORD_BOT_TOKEN is not configured."
+    };
+  }
+
+  const channelRes = await fetch("https://discord.com/api/v10/users/@me/channels", {
+    method: "POST",
+    headers: {
+      Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ recipient_id: targetDiscordId })
+  });
+
+  const channelRaw = await channelRes.text();
+  let channelParsed = null;
+  try {
+    channelParsed = JSON.parse(channelRaw);
+  } catch {
+    channelParsed = null;
+  }
+
+  if (!channelRes.ok) {
+    return {
+      ok: false,
+      step: "create_channel",
+      status: channelRes.status,
+      code: channelParsed?.code || null,
+      message: channelParsed?.message || channelRaw || "DM channel creation failed."
+    };
+  }
+
+  const channelId = channelParsed?.id || null;
+  if (!channelId) {
+    return {
+      ok: false,
+      step: "create_channel",
+      status: channelRes.status,
+      message: "Discord returned no channel id."
+    };
+  }
+
+  const messageRes = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ content })
+  });
+
+  const messageRaw = await messageRes.text();
+  let messageParsed = null;
+  try {
+    messageParsed = JSON.parse(messageRaw);
+  } catch {
+    messageParsed = null;
+  }
+
+  if (!messageRes.ok) {
+    return {
+      ok: false,
+      step: "send_message",
+      channelId,
+      status: messageRes.status,
+      code: messageParsed?.code || null,
+      message: messageParsed?.message || messageRaw || "DM message send failed."
+    };
+  }
+
+  return {
+    ok: true,
+    channelId,
+    messageId: messageParsed?.id || null
+  };
+}
+
 function acceptedMessage(ign, averageScore) {
   return [
     "Hello! Your Starfall event application has been reviewed.",
@@ -930,6 +1010,33 @@ app.get("/debug/discord/dm-check/:discordId", ensureSignedIn, ensurePortal("mana
       targetDiscordId,
       bot: identity,
       dmCheck: check
+    });
+  } catch (error) {
+    return res.status(500).json({
+      now: new Date().toISOString(),
+      targetDiscordId,
+      error: error.message
+    });
+  }
+});
+
+app.get("/debug/discord/send-test/:discordId", ensureSignedIn, ensurePortal("manager"), async (req, res) => {
+  const targetDiscordId = (req.params.discordId || "").toString().trim();
+  if (!targetDiscordId) {
+    return res.status(400).json({ error: "Missing discordId path parameter." });
+  }
+
+  const content = (req.query.content || "Starfall DM send test from the production bot.").toString();
+
+  try {
+    const identity = await fetchDiscordBotIdentity();
+    const result = await sendDiscordDmTest(targetDiscordId, content);
+    return res.json({
+      now: new Date().toISOString(),
+      targetDiscordId,
+      content,
+      bot: identity,
+      result
     });
   } catch (error) {
     return res.status(500).json({
