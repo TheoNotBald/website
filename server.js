@@ -23,6 +23,9 @@ const DISCORD_BOT_TOKEN = (
   || process.env.BOT_TOKEN
   || ""
 ).trim();
+const DISCORD_GUILD_ID = (process.env.DISCORD_GUILD_ID || "").trim();
+const ACCEPTED_ROLE_ID = (process.env.ACCEPTED_ROLE_ID || "").trim();
+const ACCEPTED_CHANNEL_ID = (process.env.ACCEPTED_CHANNEL_ID || "").trim();
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
@@ -36,6 +39,9 @@ console.log(`[STARTUP] DISCORD_CLIENT_ID set=${Boolean(DISCORD_CLIENT_ID)}`);
 console.log(`[STARTUP] DISCORD_CLIENT_SECRET set=${Boolean(DISCORD_CLIENT_SECRET)}`);
 console.log(`[STARTUP] DISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || "(not set)"}`);
 console.log(`[STARTUP] DISCORD_BOT_TOKEN set=${Boolean(DISCORD_BOT_TOKEN)}`);
+console.log(`[STARTUP] DISCORD_GUILD_ID=${DISCORD_GUILD_ID || "(not set)"}`);
+console.log(`[STARTUP] ACCEPTED_ROLE_ID=${ACCEPTED_ROLE_ID || "(not set)"}`);
+console.log(`[STARTUP] ACCEPTED_CHANNEL_ID=${ACCEPTED_CHANNEL_ID || "(not set)"}`);
 console.log(`[STARTUP] OAUTH_READY=${OAUTH_READY}`);
 console.log(`[STARTUP] SUPABASE_ENABLED=${SUPABASE_ENABLED}`);
 const MINIMUM_AGE = 13;
@@ -787,6 +793,61 @@ async function sendDiscordDM(userId, content) {
   return { sent: true, skipped: false };
 }
 
+async function grantDiscordRole(guildId, userId, roleId) {
+  if (!DISCORD_BOT_TOKEN) {
+    throw new Error("Discord bot token is not configured.");
+  }
+
+  const res = await fetch(
+    `https://discord.com/api/v10/guilds/${guildId}/members/${userId}/roles/${roleId}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bot ${DISCORD_BOT_TOKEN}`
+      }
+    }
+  );
+
+  if (!res.ok) {
+    const details = await res.text();
+    throw new Error(`Failed to assign role (${res.status}): ${details}`);
+  }
+
+  return { ok: true };
+}
+
+async function sendDiscordChannelMessage(channelId, content) {
+  if (!DISCORD_BOT_TOKEN) {
+    throw new Error("Discord bot token is not configured.");
+  }
+
+  const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ content })
+  });
+
+  const raw = await res.text();
+  let parsed = null;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    parsed = null;
+  }
+
+  if (!res.ok) {
+    throw new Error(`Failed to send channel message (${res.status}): ${parsed?.message || raw}`);
+  }
+
+  return {
+    ok: true,
+    messageId: parsed?.id || null
+  };
+}
+
 async function fetchDiscordBotIdentity() {
   if (!DISCORD_BOT_TOKEN) {
     return {
@@ -953,7 +1014,7 @@ function acceptedMessage(ign, averageScore) {
     "Hello! Your Starfall event application has been reviewed.",
     `Status: ACCEPTED for ${ign}.`,
     `Final Average Score: ${averageScore ?? "N/A"}/5`,
-    "A manager will follow up with event details and next steps."
+    "You have been given access to the accepted channel and the accepted role."
   ].join("\n");
 }
 
@@ -1788,10 +1849,40 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
   writeStore(data);
 
   const minecraftName = application.answers.ign;
-  const content =
-    decision === "accepted"
-      ? acceptedMessage(minecraftName, averageScore)
-      : deniedMessage(minecraftName, averageScore);
+  if (decision === "accepted") {
+    const welcomeContent = [
+      `<@${application.discordId}> you have been accepted! Welcome to civ.`,
+      ACCEPTED_ROLE_ID ? `You have been given <@&${ACCEPTED_ROLE_ID}>.` : "You have been given the accepted role.",
+      "Please check the accepted channel for access and next steps."
+    ].join("\n");
+
+    try {
+      if (!DISCORD_GUILD_ID || !ACCEPTED_ROLE_ID) {
+        return res.redirect(
+          "/dashboard?error=Accepted+role+setup+is+missing.+Set+DISCORD_GUILD_ID+and+ACCEPTED_ROLE_ID."
+        );
+      }
+
+      await grantDiscordRole(DISCORD_GUILD_ID, application.discordId, ACCEPTED_ROLE_ID);
+
+      let announcementResult = null;
+      if (ACCEPTED_CHANNEL_ID) {
+        announcementResult = await sendDiscordChannelMessage(ACCEPTED_CHANNEL_ID, welcomeContent);
+      }
+
+      if (announcementResult?.ok) {
+        return res.redirect(`/dashboard?notice=Application+${id}+accepted,+role+granted,+and+welcome+message+posted.`);
+      }
+
+      return res.redirect(`/dashboard?notice=Application+${id}+accepted+and+role+granted.+No+accepted+channel+was+set.`);
+    } catch (error) {
+      return res.redirect(
+        `/dashboard?error=Application+${id}+accepted,+but+role/message+setup+failed:+${encodeURIComponent(error.message)}`
+      );
+    }
+  }
+
+  const content = deniedMessage(minecraftName, averageScore);
 
   try {
     const dmResult = await sendDiscordDM(application.discordId, content);
