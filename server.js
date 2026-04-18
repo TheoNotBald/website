@@ -1600,7 +1600,7 @@ async function submitApplicationPayload(req, res, payload, options = {}) {
 
   if (existing) {
     return res.redirect(
-      "/dashboard?error=You+already+have+an+application+on+file.+Ask+a+manager+to+delete+it+or+wait+for+it+to+auto-delete+after+60+days."
+      "/dashboard?notice=You+already+have+an+application+on+file."
     );
   }
 
@@ -1854,11 +1854,14 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
 
   const minecraftName = application.answers.ign;
   if (decision === "accepted") {
-    const preferredSide = (application.answers?.preferredSide || "").toString().trim().toLowerCase();
+    const preferredSideRaw = (application.answers?.preferredSide || "").toString().trim().toLowerCase();
+    const preferredSide = preferredSideRaw === "pirate"
+      ? "pirates"
+      : (preferredSideRaw === "sailor" ? "sailors" : preferredSideRaw);
     const sideRoleId = preferredSide === "pirates"
       ? PIRATE_ROLE_ID
       : (preferredSide === "sailors" ? SAILOR_ROLE_ID : "");
-    const welcomeContent = `## <@${application.discordId}> - has set sail!`;
+    const welcomeContent = `## <@${application.discordId}>- has set sail!`;
 
     try {
       if (!DISCORD_GUILD_ID || !ACCEPTED_ROLE_ID) {
