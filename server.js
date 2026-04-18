@@ -25,6 +25,8 @@ const DISCORD_BOT_TOKEN = (
 ).trim();
 const DISCORD_GUILD_ID = (process.env.DISCORD_GUILD_ID || "").trim();
 const ACCEPTED_ROLE_ID = (process.env.ACCEPTED_ROLE_ID || "").trim();
+const PIRATE_ROLE_ID = (process.env.PIRATE_ROLE_ID || "").trim();
+const SAILOR_ROLE_ID = (process.env.SAILOR_ROLE_ID || "").trim();
 const ACCEPTED_CHANNEL_ID = (process.env.ACCEPTED_CHANNEL_ID || "").trim();
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -41,6 +43,8 @@ console.log(`[STARTUP] DISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || "(not set)
 console.log(`[STARTUP] DISCORD_BOT_TOKEN set=${Boolean(DISCORD_BOT_TOKEN)}`);
 console.log(`[STARTUP] DISCORD_GUILD_ID=${DISCORD_GUILD_ID || "(not set)"}`);
 console.log(`[STARTUP] ACCEPTED_ROLE_ID=${ACCEPTED_ROLE_ID || "(not set)"}`);
+console.log(`[STARTUP] PIRATE_ROLE_ID=${PIRATE_ROLE_ID || "(not set)"}`);
+console.log(`[STARTUP] SAILOR_ROLE_ID=${SAILOR_ROLE_ID || "(not set)"}`);
 console.log(`[STARTUP] ACCEPTED_CHANNEL_ID=${ACCEPTED_CHANNEL_ID || "(not set)"}`);
 console.log(`[STARTUP] OAUTH_READY=${OAUTH_READY}`);
 console.log(`[STARTUP] SUPABASE_ENABLED=${SUPABASE_ENABLED}`);
@@ -1850,11 +1854,11 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
 
   const minecraftName = application.answers.ign;
   if (decision === "accepted") {
-    const welcomeContent = [
-      `<@${application.discordId}> you have been accepted! Welcome to civ.`,
-      ACCEPTED_ROLE_ID ? `You have been given <@&${ACCEPTED_ROLE_ID}>.` : "You have been given the accepted role.",
-      "Please check the accepted channel for access and next steps."
-    ].join("\n");
+    const preferredSide = (application.answers?.preferredSide || "").toString().trim().toLowerCase();
+    const sideRoleId = preferredSide === "pirates"
+      ? PIRATE_ROLE_ID
+      : (preferredSide === "sailors" ? SAILOR_ROLE_ID : "");
+    const welcomeContent = `## <@${application.discordId}> - has set sail!`;
 
     try {
       if (!DISCORD_GUILD_ID || !ACCEPTED_ROLE_ID) {
@@ -1863,7 +1867,22 @@ app.post("/applications/:id/decision", ensureSignedIn, ensurePortal("manager"), 
         );
       }
 
+      if (preferredSide === "pirates" && !PIRATE_ROLE_ID) {
+        return res.redirect(
+          "/dashboard?error=Pirate+role+setup+is+missing.+Set+PIRATE_ROLE_ID."
+        );
+      }
+
+      if (preferredSide === "sailors" && !SAILOR_ROLE_ID) {
+        return res.redirect(
+          "/dashboard?error=Sailor+role+setup+is+missing.+Set+SAILOR_ROLE_ID."
+        );
+      }
+
       await grantDiscordRole(DISCORD_GUILD_ID, application.discordId, ACCEPTED_ROLE_ID);
+      if (sideRoleId) {
+        await grantDiscordRole(DISCORD_GUILD_ID, application.discordId, sideRoleId);
+      }
 
       let announcementResult = null;
       if (ACCEPTED_CHANNEL_ID) {
